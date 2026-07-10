@@ -5,637 +5,593 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>张丹逸 · 简历宇宙</title>
 <style>
-:root {
-  --bg: #03071a;
-  --bg2: #060d2a;
-  --accent: #a78bfa;
-  --accent2: #60a5fa;
-  --accent3: #34d399;
-  --accent4: #f472b6;
-  --accent5: #fbbf24;
-  --text: #e2e8f0;
-  --text-dim: rgba(226,232,240,0.55);
-  --glass: rgba(255,255,255,0.04);
-  --glass-border: rgba(255,255,255,0.09);
-}
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Georgia',serif;
-  overflow-x:hidden;
-  min-height:100vh;
+:root{
+  --bg:#04010f;
+  --ring:#c084fc;
+  --ring2:#818cf8;
+  --ring3:#f472b6;
+  --gold:#fbbf24;
+  --green:#34d399;
+  --blue:#60a5fa;
+  --text:#e2e8f0;
 }
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Georgia',serif;color:var(--text);}
 
-/* ── STARFIELD ── */
-#starfield{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite alternate;}
-.meteor{position:absolute;width:1px;height:90px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.9));transform:rotate(-45deg);animation:meteor-fall var(--s,5s) linear infinite;opacity:0;}
-@keyframes twinkle{from{opacity:var(--lo,.1);transform:scale(1);}to{opacity:var(--hi,.7);transform:scale(1.4);}}
-@keyframes meteor-fall{0%{transform:translateX(0) translateY(-120px) rotate(-45deg);opacity:.9;}70%{opacity:.6;}100%{transform:translateX(350px) translateY(700px) rotate(-45deg);opacity:0;}}
-@keyframes orbit{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-@keyframes pulse-ring{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(1.08);opacity:1;}}
-@keyframes float-up{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-@keyframes fade-in-up{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
-@keyframes shimmer{0%{background-position:200% center;}100%{background-position:-200% center;}}
-@keyframes spin-cw{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-@keyframes spin-ccw{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
-@keyframes bounce-down{0%,100%{transform:translateY(0);}50%{transform:translateY(7px);}}
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;}
 
-/* ── LAYOUT ── */
-#page{position:relative;z-index:1;}
+/* ── SOLAR SYSTEM ── */
+#solar{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;}
+#system-wrap{position:relative;width:700px;height:700px;}
 
-/* ── NAV ── */
-nav{
-  position:sticky;top:0;z-index:100;
-  display:flex;justify-content:center;gap:0;
-  background:rgba(3,7,26,.82);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(167,139,250,.12);
-  padding:0 20px;
+/* sun */
+.sun{
+  position:absolute;top:50%;left:50%;
+  width:64px;height:64px;margin:-32px 0 0 -32px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff9c4,#fde68a 40%,#f59e0b 70%,transparent);
+  box-shadow:0 0 40px 20px rgba(251,191,36,.45),0 0 80px 40px rgba(251,191,36,.2);
+  z-index:10;cursor:pointer;
+  animation:sun-pulse 3s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
 }
-.nav-item{
-  padding:16px 22px;
-  font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(226,232,240,.45);
-  cursor:pointer;border:none;background:none;
-  position:relative;transition:color .3s;font-family:inherit;
-}
-.nav-item::after{
-  content:'';position:absolute;bottom:0;left:50%;right:50%;
-  height:2px;background:var(--accent);
-  transition:left .3s,right .3s;
-}
-.nav-item:hover{color:var(--accent);}
-.nav-item:hover::after{left:16px;right:16px;}
+@keyframes sun-pulse{0%,100%{box-shadow:0 0 40px 20px rgba(251,191,36,.45),0 0 80px 40px rgba(251,191,36,.2);}50%{box-shadow:0 0 55px 28px rgba(251,191,36,.6),0 0 110px 55px rgba(251,191,36,.3);}}
 
-/* ── HERO ── */
-.hero{
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  text-align:center;padding:80px 24px 60px;
-  position:relative;
-}
 /* orbit rings */
-.ring{
-  position:absolute;border-radius:50%;
-  border:1px solid rgba(167,139,250,.12);
+.orbit{
+  position:absolute;top:50%;left:50%;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.07);
+  transform:translate(-50%,-50%) rotateX(60deg);
+  transform-style:preserve-3d;
   pointer-events:none;
 }
-.ring-1{width:300px;height:300px;animation:spin-cw 28s linear infinite;}
-.ring-2{width:460px;height:460px;animation:spin-ccw 46s linear infinite;}
-.ring-3{width:640px;height:640px;animation:spin-cw 70s linear infinite;}
-.ring-dot{position:absolute;border-radius:50%;width:7px;height:7px;}
 
-/* avatar */
-.avatar-wrap{position:relative;width:130px;height:130px;margin:0 auto 28px;animation:float-up 4s ease-in-out infinite;}
-.avatar-glow{
-  position:absolute;inset:-14px;border-radius:50%;
-  background:radial-gradient(circle,rgba(167,139,250,.28) 0%,transparent 68%);
-  animation:pulse-ring 3s ease-in-out infinite;
-}
-.avatar{
-  width:130px;height:130px;border-radius:50%;
-  border:2.5px solid var(--accent);
-  background:linear-gradient(135deg,#1e1b4b,#312e81);
+/* planet */
+.planet{
+  position:absolute;
+  border-radius:50%;
+  cursor:pointer;
+  transition:transform .2s,filter .2s;
   display:flex;align-items:center;justify-content:center;
-  font-size:52px;overflow:hidden;position:relative;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+  text-align:center;line-height:1.2;
+  flex-direction:column;gap:2px;
+  user-select:none;
+  z-index:20;
 }
-.avatar::before{
-  content:'';position:absolute;inset:0;
-  background:conic-gradient(transparent 0deg,rgba(167,139,250,.25) 120deg,transparent 240deg);
-  animation:spin-cw 4s linear infinite;
+.planet:hover{transform:scale(1.18);filter:brightness(1.3);}
+.planet.active{filter:brightness(1.4);transform:scale(1.22);}
+.planet-label{
+  position:absolute;white-space:nowrap;
+  font-size:.65rem;letter-spacing:.08em;
+  color:rgba(226,232,240,.65);
+  top:calc(100% + 5px);left:50%;transform:translateX(-50%);
+  pointer-events:none;
 }
-
-/* name / title */
-.hero-name{
-  font-size:clamp(2.4rem,6vw,3.8rem);font-weight:700;letter-spacing:.04em;
-  background:linear-gradient(135deg,#f1f5f9 0%,var(--accent) 45%,var(--accent2) 100%);
-  background-size:200% auto;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:shimmer 6s linear infinite;
-  margin-bottom:10px;
-}
-.hero-en{font-size:1rem;color:rgba(226,232,240,.35);letter-spacing:.25em;margin-bottom:6px;}
-.hero-title{font-size:.9rem;color:var(--accent);letter-spacing:.25em;margin-bottom:20px;}
-.hero-desc{
-  max-width:500px;font-size:.92rem;line-height:1.9;
-  color:var(--text-dim);margin-bottom:36px;
-}
-.hero-tags{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:52px;}
-.tag{
-  padding:5px 15px;border-radius:20px;font-size:.76rem;
-  letter-spacing:.06em;border:1px solid;transition:all .3s;
-}
-.tag:hover{transform:translateY(-2px);filter:brightness(1.25);}
-.t1{color:var(--accent);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.07);}
-.t2{color:var(--accent2);border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.07);}
-.t3{color:var(--accent3);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07);}
-.t4{color:var(--accent4);border-color:rgba(244,114,182,.35);background:rgba(244,114,182,.07);}
-.t5{color:var(--accent5);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);}
-
-.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(226,232,240,.28);font-size:.72rem;letter-spacing:.12em;animation:bounce-down 2s ease-in-out infinite;}
-.scroll-line{width:1px;height:38px;background:linear-gradient(to bottom,transparent,rgba(167,139,250,.5));}
-
-/* ── SECTION WRAPPER ── */
-.section{max-width:1060px;margin:0 auto;padding:90px 32px;}
-.sec-label{
-  display:flex;align-items:center;gap:14px;margin-bottom:56px;
-}
-.sec-num{
-  font-size:2.4rem;font-weight:700;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  opacity:.25;line-height:1;
-}
-.sec-title-wrap{}
-.sec-title{font-size:1.6rem;font-weight:600;margin-bottom:3px;}
-.sec-sub{font-size:.75rem;color:rgba(226,232,240,.32);letter-spacing:.22em;text-transform:uppercase;}
-
-.sep{height:1px;background:linear-gradient(to right,transparent,rgba(167,139,250,.18),transparent);max-width:1060px;margin:0 auto;}
-
-/* ── GLASS CARD ── */
-.glass{
-  background:var(--glass);
-  border:1px solid var(--glass-border);
-  border-radius:18px;
-  backdrop-filter:blur(8px);
-  transition:all .3s;
-}
-.glass:hover{
-  background:rgba(255,255,255,.06);
-  transform:translateY(-3px);
-  box-shadow:0 12px 40px rgba(0,0,0,.35);
+.planet-ring{
+  position:absolute;
+  border-radius:50%;border:2px solid rgba(255,255,255,.18);
+  pointer-events:none;
+  top:50%;left:50%;transform:translate(-50%,-50%) rotateX(70deg);
 }
 
-/* ── TIMELINE ── */
-.timeline{position:relative;padding-left:36px;}
-.timeline::before{
-  content:'';position:absolute;left:0;top:6px;bottom:6px;
-  width:1px;
-  background:linear-gradient(to bottom,var(--accent),rgba(167,139,250,.1));
-}
-.tl-item{position:relative;margin-bottom:40px;animation:fade-in-up .6s ease both;}
-.tl-dot{
-  position:absolute;left:-42px;top:5px;
-  width:12px;height:12px;border-radius:50%;
-  border:2px solid var(--accent);background:var(--bg);
-  box-shadow:0 0 8px var(--accent);
-}
-.tl-card{padding:22px 26px;}
-.tl-card::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;
-  width:3px;border-radius:3px 0 0 3px;
-  background:linear-gradient(to bottom,var(--accent),transparent);
-}
-.tl-period{font-size:.72rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:7px;}
-.tl-period-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);}
-.tl-title{font-size:1.1rem;font-weight:600;color:#f1f5f9;margin-bottom:3px;}
-.tl-org{font-size:.87rem;color:var(--accent2);margin-bottom:10px;}
-.tl-desc{font-size:.84rem;line-height:1.75;color:var(--text-dim);}
-.tl-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
-.tl-tag{padding:2px 10px;border-radius:10px;font-size:.7rem;background:rgba(167,139,250,.1);color:var(--accent);border:1px solid rgba(167,139,250,.2);}
-.tl-tag-blue{background:rgba(96,165,250,.08);color:var(--accent2);border-color:rgba(96,165,250,.2);}
-.tl-tag-green{background:rgba(52,211,153,.08);color:var(--accent3);border-color:rgba(52,211,153,.2);}
-.tl-tag-pink{background:rgba(244,114,182,.08);color:var(--accent4);border-color:rgba(244,114,182,.2);}
-.tl-tag-gold{background:rgba(251,191,36,.08);color:var(--accent5);border-color:rgba(251,191,36,.2);}
+/* ── ASTEROID BELT ── */
+#asteroid-belt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:5;}
 
-/* bullet list inside card */
-.tl-ul{margin:8px 0 0 0;padding-left:16px;font-size:.83rem;line-height:1.8;color:var(--text-dim);}
-.tl-ul li{margin-bottom:4px;}
-
-/* ── SKILLS ── */
-.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
-.skill-card{padding:22px 24px;}
-.sk-icon{font-size:26px;margin-bottom:10px;}
-.sk-name{font-size:.98rem;font-weight:600;margin-bottom:4px;}
-.sk-desc{font-size:.76rem;color:var(--text-dim);margin-bottom:12px;}
-.sk-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
-.sk-fill{height:100%;border-radius:2px;background:var(--c);transition:width 1.2s ease;}
-
-/* ── PROJECTS ── */
-.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
-.proj-card{padding:26px;position:relative;overflow:hidden;}
-.proj-card::before{
-  content:'';position:absolute;top:-40px;right:-40px;
-  width:100px;height:100px;border-radius:50%;
-  background:radial-gradient(circle,var(--pc),transparent);
-  opacity:.14;
+/* ── BOTTOM NAV ── */
+#bottom-nav{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:50;
+  background:rgba(4,1,15,.7);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:40px;padding:6px 8px;
 }
-.proj-card:hover{border-color:var(--pc);}
-.proj-emoji{font-size:32px;margin-bottom:14px;}
-.proj-name{font-size:1.08rem;font-weight:600;color:#f1f5f9;margin-bottom:8px;}
-.proj-desc{font-size:.82rem;line-height:1.72;color:var(--text-dim);margin-bottom:14px;}
+.nav-tab{
+  padding:8px 20px;border-radius:30px;font-size:.75rem;
+  letter-spacing:.1em;cursor:pointer;border:none;
+  color:rgba(226,232,240,.45);background:none;
+  transition:all .3s;font-family:inherit;
+}
+.nav-tab.active{background:rgba(192,132,252,.15);color:var(--ring);border:1px solid rgba(192,132,252,.3);}
+.nav-tab:hover:not(.active){color:rgba(226,232,240,.8);}
 
-/* ── CONTACT ── */
-.contact-wrap{max-width:680px;margin:0 auto;padding:90px 32px 130px;text-align:center;}
-.contact-pretitle{font-size:.72rem;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;}
-.contact-title{font-size:2.2rem;font-weight:700;margin-bottom:14px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.contact-desc{font-size:.9rem;color:var(--text-dim);line-height:1.8;margin-bottom:44px;}
-.contact-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:40px;}
-.ci{
+/* ── LEFT PLANET LIST ── */
+#planet-list{
+  position:fixed;left:24px;top:50%;transform:translateY(-50%);
+  z-index:50;display:flex;flex-direction:column;gap:8px;
+}
+.pl-item{
   display:flex;align-items:center;gap:9px;
-  padding:12px 22px;border-radius:14px;
-  font-size:.85rem;color:rgba(226,232,240,.75);
-  text-decoration:none;
-  transition:all .3s;
+  padding:6px 12px 6px 8px;
+  border-radius:20px;cursor:pointer;
+  border:1px solid transparent;
+  transition:all .25s;font-size:.72rem;letter-spacing:.06em;
+  color:rgba(226,232,240,.45);
 }
-.ci:hover{background:rgba(167,139,250,.09);border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
-.ci-icon{font-size:18px;}
-.sagan{color:rgba(226,232,240,.2);font-size:.78rem;font-style:italic;margin-top:10px;}
+.pl-item:hover,.pl-item.active{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.12);
+  color:rgba(226,232,240,.9);
+}
+.pl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 
-footer{text-align:center;padding:24px;color:rgba(226,232,240,.18);font-size:.76rem;letter-spacing:.1em;border-top:1px solid rgba(255,255,255,.05);}
+/* ── TOP TITLE ── */
+#top-title{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);
+  z-index:50;text-align:center;pointer-events:none;
+}
+.tt-name{
+  font-size:1.5rem;font-weight:700;letter-spacing:.08em;
+  background:linear-gradient(135deg,#f1f5f9,#c084fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.tt-sub{font-size:.7rem;color:rgba(226,232,240,.35);letter-spacing:.2em;margin-top:3px;}
 
-/* ── RESPONSIVE ── */
+/* ── PANEL ── */
+#panel{
+  position:fixed;right:0;top:0;bottom:0;
+  width:400px;z-index:60;
+  background:rgba(4,1,15,.92);
+  backdrop-filter:blur(24px);
+  border-left:1px solid rgba(255,255,255,.08);
+  transform:translateX(100%);
+  transition:transform .4s cubic-bezier(.25,.8,.25,1);
+  overflow-y:auto;
+  padding:32px 28px 48px;
+}
+#panel.open{transform:translateX(0);}
+#panel-close{
+  position:absolute;top:18px;right:20px;
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);
+  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
+  color:rgba(226,232,240,.6);transition:all .2s;
+}
+#panel-close:hover{background:rgba(255,255,255,.12);color:#fff;}
+.panel-planet-icon{font-size:48px;margin-bottom:16px;}
+.panel-pretitle{font-size:.68rem;color:var(--panel-color,#c084fc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px;}
+.panel-title{font-size:1.4rem;font-weight:700;margin-bottom:6px;color:#f1f5f9;}
+.panel-org{font-size:.85rem;color:var(--panel-color,#c084fc);margin-bottom:14px;}
+.panel-desc{font-size:.83rem;line-height:1.8;color:rgba(226,232,240,.65);margin-bottom:16px;}
+.panel-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.ptag{padding:3px 10px;border-radius:10px;font-size:.7rem;background:rgba(192,132,252,.1);color:var(--panel-color,#c084fc);border:1px solid rgba(192,132,252,.2);}
+.panel-ul{padding-left:16px;font-size:.82rem;line-height:1.85;color:rgba(226,232,240,.6);}
+.panel-ul li{margin-bottom:5px;}
+.panel-divider{height:1px;background:rgba(255,255,255,.07);margin:18px 0;}
+.panel-sub-title{font-size:.75rem;color:rgba(226,232,240,.35);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+
+/* skill bar in panel */
+.sk-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sk-lbl{font-size:.78rem;width:90px;flex-shrink:0;color:rgba(226,232,240,.7);}
+.sk-bar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;}
+.sk-fill{height:100%;border-radius:2px;background:var(--panel-color,#c084fc);}
+
+/* ── INTRO HINT ── */
+#hint{
+  position:fixed;bottom:88px;left:50%;transform:translateX(-50%);
+  font-size:.7rem;color:rgba(226,232,240,.28);letter-spacing:.12em;
+  pointer-events:none;z-index:40;text-align:center;
+  animation:hint-fade 2s ease 2s both;
+}
+@keyframes hint-fade{from{opacity:0;}to{opacity:1;}}
+
+/* scrollbar */
+#panel::-webkit-scrollbar{width:4px;}
+#panel::-webkit-scrollbar-thumb{background:rgba(192,132,252,.3);border-radius:2px;}
+
 @media(max-width:768px){
-  nav{gap:0;overflow-x:auto;justify-content:flex-start;}
-  .nav-item{padding:14px 14px;font-size:.7rem;}
-  .ring-2,.ring-3{display:none;}
-  .section{padding:60px 20px;}
-  .proj-grid,.skills-grid{grid-template-columns:1fr;}
+  #system-wrap{width:380px;height:380px;}
+  #panel{width:100%;right:0;top:auto;bottom:0;height:75vh;border-left:none;border-top:1px solid rgba(255,255,255,.08);}
+  #planet-list{display:none;}
+  .tt-name{font-size:1.1rem;}
 }
 </style>
 </head>
 <body>
 
-<div id="starfield"></div>
+<canvas id="bg-canvas"></canvas>
 
-<div id="page">
+<div id="top-title">
+  <div class="tt-name">张丹逸 · Resume Universe</div>
+  <div class="tt-sub">UCL · 西交利物浦 · 数据科学家 · 点击星球探索</div>
+</div>
 
-<!-- NAV -->
-<nav>
-  <button class="nav-item" onclick="goto('edu')">🎓 教育</button>
-  <button class="nav-item" onclick="goto('exp')">💼 经历</button>
-  <button class="nav-item" onclick="goto('proj')">🚀 项目</button>
-  <button class="nav-item" onclick="goto('skill')">⚡ 技能</button>
-  <button class="nav-item" onclick="goto('contact')">📡 联系</button>
-</nav>
+<!-- LEFT LIST -->
+<div id="planet-list"></div>
 
-<!-- HERO -->
-<section class="hero">
-  <!-- orbit rings -->
-  <div class="ring ring-1" style="position:absolute;top:50%;left:50%;margin:-150px 0 0 -150px;">
-    <div class="ring-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);top:50%;left:0;margin:-3.5px 0 0 -3.5px;"></div>
+<!-- SOLAR SYSTEM -->
+<div id="solar">
+  <div id="system-wrap">
+    <canvas id="asteroid-belt" width="700" height="700"></canvas>
+    <div class="sun" id="sun-btn" title="关于我">🌟</div>
   </div>
-  <div class="ring ring-2" style="position:absolute;top:50%;left:50%;margin:-230px 0 0 -230px;">
-    <div class="ring-dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2);top:0;left:50%;margin:-3.5px 0 0 -3.5px;"></div>
-  </div>
-  <div class="ring ring-3" style="position:absolute;top:50%;left:50%;margin:-320px 0 0 -320px;">
-    <div class="ring-dot" style="background:var(--accent3);box-shadow:0 0 6px var(--accent3);top:50%;left:100%;margin:-3.5px 0 0 -3.5px;"></div>
-  </div>
+</div>
 
-  <div class="avatar-wrap">
-    <div class="avatar-glow"></div>
-    <div class="avatar">🌌</div>
-  </div>
+<!-- BOTTOM NAV -->
+<div id="bottom-nav">
+  <button class="nav-tab active" data-tab="resume">✦ 简历宇宙</button>
+  <button class="nav-tab" data-tab="universe">🌌 宇宙观</button>
+  <button class="nav-tab" data-tab="contact">📡 联系</button>
+</div>
 
-  <p class="hero-en">ZHANG DAN YI</p>
-  <h1 class="hero-name">张丹逸</h1>
-  <p class="hero-title">✦ 数据科学家 · 环境建模者 · 探索者 ✦</p>
-  <p class="hero-desc">
-    UCL 环境数据建模硕士 · 西交利物浦大学金融数学学士<br>
-    雅思 8.0 · 五段数据分析实习 · 全栈数量研究能力<br>
-    <em style="opacity:.45;font-size:.85em;">SQL · Python · R · GIS · 机器学习 · NLP</em>
-  </p>
+<div id="hint">Click a planet · 点击星球探索</div>
 
-  <div class="hero-tags">
-    <span class="tag t1">📊 数据分析</span>
-    <span class="tag t2">🌍 环境建模</span>
-    <span class="tag t3">💹 金融数学</span>
-    <span class="tag t4">🤖 机器学习</span>
-    <span class="tag t5">🗺️ GIS 空间分析</span>
-    <span class="tag t1">📝 NLP 文本分析</span>
-    <span class="tag t2">🏦 风险量化</span>
-    <span class="tag t3">🎓 PhD 申请中</span>
-  </div>
-
-  <div class="scroll-cue">
-    <span>探索宇宙</span>
-    <div class="scroll-line"></div>
-  </div>
-</section>
-
-<!-- ① 教育星系 -->
-<section class="section" id="edu">
-  <div class="sec-label">
-    <span class="sec-num">01</span>
-    <div class="sec-title-wrap">
-      <h2 class="sec-title" style="color:var(--accent);">教育星系</h2>
-      <p class="sec-sub">Academic Constellation</p>
-    </div>
-  </div>
-
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot" style="border-color:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
-      <div class="tl-card glass">
-        <div class="tl-period"><div class="tl-period-dot"></div>2024.09 — 2026.02</div>
-        <div class="tl-title">理学硕士 · 环境数据建模</div>
-        <div class="tl-org">🏛️ 伦敦大学学院 UCL · 英国伦敦</div>
-        <div class="tl-desc">全球顶尖综合大学（QS全球前10），专注环境数据科学与建模方向。</div>
-        <div class="tl-tags">
-          <span class="tl-tag">机器学习算法</span>
-          <span class="tl-tag">气候统计建模</span>
-          <span class="tl-tag">GIS空间分析</span>
-          <span class="tl-tag">科学计算</span>
-          <span class="tl-tag">陆地碳算法</span>
-          <span class="tl-tag">数值分析</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="tl-item" style="animation-delay:.15s;">
-      <div class="tl-dot" style="border-color:var(--accent2);box-shadow:0 0 8px var(--accent2);"></div>
-      <div class="tl-card glass" style="--accent:var(--accent2);">
-        <div class="tl-period" style="color:var(--accent2);"><div class="tl-period-dot" style="background:var(--accent2);"></div>2020.09 — 2024.06</div>
-        <div class="tl-title">理学学士 · 金融数学</div>
-        <div class="tl-org" style="color:var(--accent2);">🏛️ 西交利物浦大学 · 江苏苏州</div>
-        <div class="tl-desc">利物浦大学联合办学，英语授课，国际化数理金融培养体系。</div>
-        <div class="tl-tags">
-          <span class="tl-tag tl-tag-blue">概率统计</span>
-          <span class="tl-tag tl-tag-blue">线性代数</span>
-          <span class="tl-tag tl-tag-blue">计量经济学</span>
-          <span class="tl-tag tl-tag-blue">风险管理</span>
-          <span class="tl-tag tl-tag-blue">量化交易</span>
-          <span class="tl-tag tl-tag-blue">金融工程</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- ② 经历星云 -->
-<section class="section" id="exp">
-  <div class="sec-label">
-    <span class="sec-num">02</span>
-    <div class="sec-title-wrap">
-      <h2 class="sec-title" style="color:var(--accent2);">经历星云</h2>
-      <p class="sec-sub">Experience Nebula</p>
-    </div>
-  </div>
-
-  <div class="timeline">
-
-    <!-- 小红书 -->
-    <div class="tl-item">
-      <div class="tl-dot" style="border-color:var(--accent4);box-shadow:0 0 8px var(--accent4);"></div>
-      <div class="tl-card glass">
-        <div class="tl-period" style="color:var(--accent4);"><div class="tl-period-dot" style="background:var(--accent4);"></div>2025.10 — 2025.12</div>
-        <div class="tl-title">策略运营 · 社区回查数据岗</div>
-        <div class="tl-org" style="color:var(--accent4);">📱 小红书 · 上海</div>
-        <ul class="tl-ul">
-          <li>通过 SQL 搭建数据看板，构建完善的审核运营指标体系，设计 A/B 测试验证审核策略效果</li>
-          <li>针对风险回查动作中低召回率、低处置率问题进行特征因子挖掘，撰写分析报告推动策略优化</li>
-        </ul>
-        <div class="tl-tags">
-          <span class="tl-tag tl-tag-pink">SQL</span>
-          <span class="tl-tag tl-tag-pink">A/B 测试</span>
-          <span class="tl-tag tl-tag-pink">数据看板</span>
-          <span class="tl-tag tl-tag-pink">特征因子挖掘</span>
-          <span class="tl-tag tl-tag-pink">策略运营</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ipsos -->
-    <div class="tl-item" style="animation-delay:.1s;">
-      <div class="tl-dot" style="border-color:var(--accent2);box-shadow:0 0 8px var(--accent2);"></div>
-      <div class="tl-card glass">
-        <div class="tl-period" style="color:var(--accent2);"><div class="tl-period-dot" style="background:var(--accent2);"></div>2025.09 — 2025.10</div>
-        <div class="tl-title">定量研究实习生</div>
-        <div class="tl-org" style="color:var(--accent2);">📊 益普索 Ipsos · 上海</div>
-        <ul class="tl-ul">
-          <li>定量分析品牌广告投放效果，使用数据透视表和 SPSS 提取核心数据，设计 AB testing 进行归因分析</li>
-          <li>核心参与《2025年亿滋企业洞察商业分析》项目，独立负责 MDLZ 中国消费市场分析模块</li>
-        </ul>
-        <div class="tl-tags">
-          <span class="tl-tag tl-tag-blue">SPSS</span>
-          <span class="tl-tag tl-tag-blue">定量分析</span>
-          <span class="tl-tag tl-tag-blue">市场研究</span>
-          <span class="tl-tag tl-tag-blue">消费者洞察</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cryptoracle -->
-    <div class="tl-item" style="animation-delay:.2s;">
-      <div class="tl-dot" style="border-color:var(--accent5);box-shadow:0 0 8px var(--accent5);"></div>
-      <div class="tl-card glass">
-        <div class="tl-period" style="color:var(--accent5);"><div class="tl-period-dot" style="background:var(--accent5);"></div>2025.06 — 2025.07</div>
-        <div class="tl-title">数据分析实习生 · 产品部</div>
-        <div class="tl-org" style="color:var(--accent5);">₿ Cryptoracle · 马来西亚</div>
-        <ul class="tl-ul">
-          <li>SQL 提取清洗金融市场交易数据，通过 PCA 主成分分析实现数据降维，挖掘市场价格波动特征因子</li>
-          <li>构建线性回归与时间序列预测模型，识别异常交易行为；Python 聚类分析构建用户画像标签体系</li>
-        </ul>
-        <div class="tl-tags">
-          <span class="tl-tag tl-tag-gold">Python</span>
-          <span class="tl-tag tl-tag-gold">PCA</span>
-          <span class="tl-tag tl-tag-gold">时间序列</span>
-          <span class="tl-tag tl-tag-gold">聚类分析</span>
-          <span class="tl-tag tl-tag-gold">金融数据</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 科大讯飞 -->
-    <div class="tl-item" style="animation-delay:.3s;">
-      <div class="tl-dot" style="border-color:var(--accent3);box-shadow:0 0 8px var(--accent3);"></div>
-      <div class="tl-card glass">
-        <div class="tl-period" style="color:var(--accent3);"><div class="tl-period-dot" style="background:var(--accent3);"></div>2023.07 — 2023.10</div>
-        <div class="tl-title">研究分析实习生 · 知识图谱应用部</div>
-        <div class="tl-org" style="color:var(--accent3);">🤖 科大讯飞 · 苏州</div>
-        <ul class="tl-ul">
-          <li>参与苏州司法案件文本分析标签体系设计，基于案件类型/罪名/判决等维度建立多层次标签体系</li>
-          <li>使用 Python + NLP 实现案件自动分类与命名实体识别，机器识别准确率提升至 <strong style="color:var(--accent3);">98%</strong></li>
-        </ul>
-        <div class="tl-tags">
-          <span class="tl-tag tl-tag-green">NLP</span>
-          <span class="tl-tag tl-tag-green">知识图谱</span>
-          <span class="tl-tag tl-tag-green">文本分类</span>
-          <span class="tl-tag tl-tag-green">实体识别</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 德勤 -->
-    <div class="tl-item" style="animation-delay:.4s;">
-      <div class="tl-dot"></div>
-      <div class="tl-card glass">
-        <div class="tl-period"><div class="tl-period-dot"></div>2022.05 — 2022.08</div>
-        <div class="tl-title">风险咨询实习生</div>
-        <div class="tl-org">🏢 德勤 Deloitte · 重庆</div>
-        <ul class="tl-ul">
-          <li>承担每月业务数据核算，识别业务问题，撰写风险评估报告与内控优化方案</li>
-          <li>基于异常检测算法监测奔驰汽车项目数据，统计方法计算风险指标，风险预警准确率 <strong style="color:var(--accent);">93%</strong></li>
-        </ul>
-        <div class="tl-tags">
-          <span class="tl-tag">风险量化</span>
-          <span class="tl-tag">异常检测</span>
-          <span class="tl-tag">内控优化</span>
-          <span class="tl-tag">统计分析</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- ③ 项目星群 -->
-<section class="section" id="proj">
-  <div class="sec-label">
-    <span class="sec-num">03</span>
-    <div class="sec-title-wrap">
-      <h2 class="sec-title" style="color:var(--accent3);">项目星群</h2>
-      <p class="sec-sub">Project Cluster</p>
-    </div>
-  </div>
-
-  <div class="proj-grid">
-
-    <div class="proj-card glass" style="--pc:var(--accent);">
-      <div class="proj-emoji">🌿</div>
-      <div class="proj-name">TCM-GPT · 中医药大模型</div>
-      <div class="proj-desc">上海中医药大学 × 百度联合项目（2023.09—2024.06）。基于"文心一言"架构构建中医药领域语言模型，负责数百万字语料的数据预处理、实体识别与语义分析，涵盖症状、方剂、经络等关键知识实体。</div>
-      <div class="tl-tags">
-        <span class="tl-tag">Python</span>
-        <span class="tl-tag">NLP</span>
-        <span class="tl-tag">知识图谱</span>
-        <span class="tl-tag">大模型</span>
-        <span class="tl-tag">语料清洗</span>
-      </div>
-    </div>
-
-    <div class="proj-card glass" style="--pc:var(--accent2);">
-      <div class="proj-emoji">📡</div>
-      <div class="proj-name">金融市场异常交易检测</div>
-      <div class="proj-desc">Cryptoracle 实习期间独立构建。结合时间序列预测与聚类分析，从加密货币交易数据与社媒私域数据中识别潜在市场操控风险，构建多维用户画像标签体系，提升个性化分析准确性。</div>
-      <div class="tl-tags">
-        <span class="tl-tag tl-tag-blue">时间序列</span>
-        <span class="tl-tag tl-tag-blue">PCA</span>
-        <span class="tl-tag tl-tag-blue">聚类分析</span>
-        <span class="tl-tag tl-tag-blue">SQL</span>
-      </div>
-    </div>
-
-    <div class="proj-card glass" style="--pc:var(--accent3);">
-      <div class="proj-emoji">🏛️</div>
-      <div class="proj-name">司法文本智能分类系统</div>
-      <div class="proj-desc">科大讯飞实习期间参与。设计多层次司法案件标签体系，通过 Python + NLP 实现案件自动分类与命名实体识别，将机器识别准确率提升至 98%，显著提升司法数据结构化效率。</div>
-      <div class="tl-tags">
-        <span class="tl-tag tl-tag-green">NLP</span>
-        <span class="tl-tag tl-tag-green">文本分类</span>
-        <span class="tl-tag tl-tag-green">实体识别</span>
-        <span class="tl-tag tl-tag-green">准确率98%</span>
-      </div>
-    </div>
-
-    <div class="proj-card glass" style="--pc:var(--accent4);">
-      <div class="proj-emoji">📊</div>
-      <div class="proj-name">品牌广告效果量化分析</div>
-      <div class="proj-desc">Ipsos 实习期间核心项目。定量分析亿滋中国（MDLZ）品牌广告投放效果，设计 A/B 测试框架，归因分析品牌认知与转化意愿提升，输出战略建议报告，独立负责消费市场分析模块。</div>
-      <div class="tl-tags">
-        <span class="tl-tag tl-tag-pink">SPSS</span>
-        <span class="tl-tag tl-tag-pink">A/B 测试</span>
-        <span class="tl-tag tl-tag-pink">归因分析</span>
-        <span class="tl-tag tl-tag-pink">市场研究</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- ④ 技能星座 -->
-<section class="section" id="skill">
-  <div class="sec-label">
-    <span class="sec-num">04</span>
-    <div class="sec-title-wrap">
-      <h2 class="sec-title" style="color:var(--accent5);">技能星座</h2>
-      <p class="sec-sub">Skills Constellation</p>
-    </div>
-  </div>
-
-  <div class="skills-grid">
-    <div class="skill-card glass"><div class="sk-icon">🐍</div><div class="sk-name">Python</div><div class="sk-desc">数据分析 · NLP · 机器学习 · 爬虫</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent);width:92%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">🗄️</div><div class="sk-name">SQL</div><div class="sk-desc">数据提取 · 指标搭建 · 数据看板</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent2);width:90%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">📈</div><div class="sk-name">R / Matlab</div><div class="sk-desc">统计建模 · 时间序列 · 计量经济</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent3);width:82%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">📊</div><div class="sk-name">SPSS / Excel</div><div class="sk-desc">定量分析 · 数据透视 · 报告撰写</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent4);width:88%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">🌍</div><div class="sk-name">GIS / 空间分析</div><div class="sk-desc">环境数据 · 地理信息 · 空间建模</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent5);width:78%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">🤖</div><div class="sk-name">机器学习 / NLP</div><div class="sk-desc">sklearn · 聚类 · 文本分类 · 实体识别</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent);width:80%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">💹</div><div class="sk-name">金融量化</div><div class="sk-desc">风险建模 · 异常检测 · 衍生品定价</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent2);width:75%;"></div></div></div>
-    <div class="skill-card glass"><div class="sk-icon">🌐</div><div class="sk-name">英语</div><div class="sk-desc">雅思 8.0 · 全英授课 · 学术写作</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent3);width:95%;"></div></div></div>
-  </div>
-</section>
-
-<div class="sep"></div>
-
-<!-- ⑤ 联系卫星 -->
-<section class="contact-wrap" id="contact">
-  <p class="contact-pretitle">📡 Contact</p>
-  <h2 class="contact-title">让我们连接宇宙</h2>
-  <p class="contact-desc">
-    无论是数据科学合作、PhD 学术交流，<br>
-    还是想聊聊环境建模与金融量化的交叉地带，<br>
-    我都在这里 ✨
-  </p>
-  <div class="contact-grid">
-    <a href="mailto:13359485898@163.com" class="ci glass"><span class="ci-icon">📧</span>13359485898@163.com</a>
-    <a href="tel:+8613359485898" class="ci glass"><span class="ci-icon">📱</span>(+86) 133-5948-5898</a>
-    <a href="#" class="ci glass"><span class="ci-icon">💬</span>微信：zdy020115</a>
-    <a href="https://github.com/DanyiZhang2002/cathy-resume-universe" class="ci glass" target="_blank"><span class="ci-icon">🐙</span>GitHub</a>
-  </div>
-  <p class="sagan">"The cosmos is within us. We are made of star-stuff." — Carl Sagan</p>
-</section>
-
-<footer>✦ 张丹逸 · 简历宇宙 · 2025 ✦ &nbsp;·&nbsp; UCL × 西交利物浦 × 数据科学</footer>
-
-</div><!-- /page -->
+<!-- PANEL -->
+<div id="panel">
+  <button id="panel-close">✕</button>
+  <div id="panel-body"></div>
+</div>
 
 <script>
-// ── NAV SCROLL ──
-function goto(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+// ── DATA ──
+const PLANETS = [
+  {
+    id:'edu', emoji:'🎓', label:'教育星系', color:'#c084fc',
+    radius:85, size:44, startAngle:30, speed:0.18,
+    bg:'radial-gradient(circle at 35% 35%,#ddd6fe,#7c3aed 60%,#4c1d95)',
+    shadow:'rgba(192,132,252,.5)',
+    content:{
+      pretitle:'Academic Constellation',
+      title:'教育背景',
+      icon:'🎓',
+      items:[
+        {period:'2024.09 — 2026.02',title:'理学硕士 · 环境数据建模',org:'🏛️ 伦敦大学学院 UCL · 英国伦敦',
+         desc:'全球QS前10顶尖综合大学，专攻环境数据科学与建模。',
+         tags:['机器学习','气候统计建模','GIS空间分析','科学计算','陆地碳算法','数值分析']},
+        {period:'2020.09 — 2024.06',title:'理学学士 · 金融数学',org:'🏛️ 西交利物浦大学 · 苏州',
+         desc:'利物浦大学联合办学，全英语授课，国际化数理金融培养体系。',
+         tags:['概率统计','线性代数','计量经济学','风险管理','量化交易','金融工程']},
+      ]
+    }
+  },
+  {
+    id:'xhs', emoji:'📱', label:'小红书', color:'#f43f5e',
+    radius:148, size:38, startAngle:110, speed:0.12,
+    bg:'radial-gradient(circle at 35% 35%,#fda4af,#e11d48 60%,#9f1239)',
+    shadow:'rgba(244,63,94,.5)',
+    content:{
+      pretitle:'2025.10 — 2025.12 · 上海',
+      title:'策略运营 · 社区回查数据岗',
+      icon:'📱',
+      org:'小红书',
+      bullets:[
+        '通过 SQL 搭建数据看板，构建完善的审核运营指标体系，设计 A/B 测试验证审核策略效果',
+        '针对风险回查中低召回率、低处置率问题进行特征因子挖掘，撰写分析报告推动策略链路优化',
+      ],
+      tags:['SQL','A/B 测试','数据看板','特征因子挖掘','策略运营'],
+    }
+  },
+  {
+    id:'ipsos', emoji:'📊', label:'Ipsos', color:'#60a5fa',
+    radius:205, size:34, startAngle:200, speed:0.09,
+    bg:'radial-gradient(circle at 35% 35%,#bae6fd,#2563eb 60%,#1e3a8a)',
+    shadow:'rgba(96,165,250,.5)',
+    content:{
+      pretitle:'2025.09 — 2025.10 · 上海',
+      title:'定量研究实习生',
+      icon:'📊',
+      org:'益普索 Ipsos',
+      bullets:[
+        '定量分析品牌广告投放效果，SPSS 提取核心数据，A/B 测试进行归因分析',
+        '核心参与《2025 年亿滋企业洞察商业分析》，独立负责 MDLZ 中国消费市场分析模块',
+      ],
+      tags:['SPSS','定量分析','A/B 测试','消费者洞察','市场研究'],
+    }
+  },
+  {
+    id:'crypto', emoji:'₿', label:'Cryptoracle', color:'#fbbf24',
+    radius:258, size:30, startAngle:300, speed:0.07,
+    bg:'radial-gradient(circle at 35% 35%,#fef3c7,#d97706 60%,#78350f)',
+    shadow:'rgba(251,191,36,.5)',
+    content:{
+      pretitle:'2025.06 — 2025.07 · 马来西亚',
+      title:'数据分析实习生 · 产品部',
+      icon:'₿',
+      org:'Cryptoracle',
+      bullets:[
+        'SQL 提取清洗金融市场交易数据，PCA 主成分分析实现降维，挖掘价格波动特征因子',
+        '构建线性回归与时间序列预测模型，识别异常交易；Python 聚类分析构建用户画像标签体系',
+      ],
+      tags:['Python','SQL','PCA','时间序列','聚类分析','金融数据'],
+    }
+  },
+  {
+    id:'iflytek', emoji:'🤖', label:'科大讯飞', color:'#34d399',
+    radius:160, size:32, startAngle:260, speed:0.10,
+    bg:'radial-gradient(circle at 35% 35%,#a7f3d0,#059669 60%,#064e3b)',
+    shadow:'rgba(52,211,153,.5)',
+    content:{
+      pretitle:'2023.07 — 2023.10 · 苏州',
+      title:'研究分析实习生 · 知识图谱部',
+      icon:'🤖',
+      org:'科大讯飞',
+      bullets:[
+        '设计苏州司法案件文本分析多层次标签体系，确保标签准确性与可操作性',
+        'Python + NLP 实现案件自动分类与命名实体识别，机器识别准确率提升至 98%',
+      ],
+      tags:['Python','NLP','知识图谱','文本分类','实体识别'],
+    }
+  },
+  {
+    id:'deloitte', emoji:'🏢', label:'德勤', color:'#a78bfa',
+    radius:230, size:36, startAngle:170, speed:0.08,
+    bg:'radial-gradient(circle at 35% 35%,#ede9fe,#7c3aed 60%,#4c1d95)',
+    shadow:'rgba(167,139,250,.5)',
+    content:{
+      pretitle:'2022.05 — 2022.08 · 重庆',
+      title:'风险咨询实习生',
+      icon:'🏢',
+      org:'德勤 Deloitte',
+      bullets:[
+        '承担每月业务数据核算，识别业务问题，撰写风险评估报告与内控优化方案',
+        '异常检测算法监测奔驰汽车项目数据，统计方法计算风险指标，预警准确率 93%',
+      ],
+      tags:['风险量化','异常检测','内控优化','统计分析'],
+    }
+  },
+  {
+    id:'tcm', emoji:'🌿', label:'TCM-GPT', color:'#f472b6',
+    radius:120, size:28, startAngle:350, speed:0.14,
+    bg:'radial-gradient(circle at 35% 35%,#fbcfe8,#db2777 60%,#831843)',
+    shadow:'rgba(244,114,182,.5)',
+    content:{
+      pretitle:'2023.09 — 2024.06 · 科研项目',
+      title:'TCM-GPT · 中医药大模型',
+      icon:'🌿',
+      org:'上海中医药大学 × 百度',
+      bullets:[
+        '参与基于"文心一言"架构的中医药语言模型构建，完成批量语料清洗与结构化转化',
+        '深度参与数百万字语料的预处理、标注与语义分析，提取症状/方剂/经络等实体关系',
+      ],
+      tags:['Python','NLP','大模型','知识图谱','语料清洗'],
+    }
+  },
+  {
+    id:'skill', emoji:'⚡', label:'技能星座', color:'#fbbf24',
+    radius:300, size:40, startAngle:70, speed:0.055,
+    bg:'radial-gradient(circle at 35% 35%,#fef9c3,#ca8a04 60%,#713f12)',
+    shadow:'rgba(251,191,36,.5)',
+    content:{
+      pretitle:'Skills Constellation',
+      title:'技能星座',
+      icon:'⚡',
+      skills:[
+        {name:'Python',pct:92},{name:'SQL',pct:90},{name:'R / Matlab',pct:82},
+        {name:'SPSS / Excel',pct:88},{name:'GIS 空间分析',pct:78},{name:'机器学习',pct:80},
+        {name:'NLP 文本分析',pct:78},{name:'金融量化建模',pct:75},{name:'英语（雅思8.0）',pct:95},
+      ]
+    }
+  },
+];
 
-// ── STARFIELD ──
-(function(){
-  const sf=document.getElementById('starfield');
+// ── BACKGROUND STARS ──
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let stars = [];
+function resizeBg(){
+  bgCanvas.width=innerWidth; bgCanvas.height=innerHeight;
+  stars=[];
+  for(let i=0;i<280;i++){
+    stars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+      r:Math.random()*1.4+.3,a:Math.random(),da:(Math.random()*.015+.005)*(Math.random()<.5?1:-1)});
+  }
+}
+resizeBg();
+window.addEventListener('resize',resizeBg);
+
+function drawBg(){
+  bgCtx.fillStyle='#04010f';
+  bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
+  // galactic haze
+  const g=bgCtx.createRadialGradient(innerWidth*.5,innerHeight*.5,0,innerWidth*.5,innerHeight*.5,innerWidth*.7);
+  g.addColorStop(0,'rgba(88,28,135,.18)');g.addColorStop(.5,'rgba(30,27,75,.12)');g.addColorStop(1,'transparent');
+  bgCtx.fillStyle=g;bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
   // stars
-  for(let i=0;i<240;i++){
-    const s=document.createElement('div');
-    s.className='star';
-    const sz=Math.random()*2.4+.4;
-    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${Math.random()*4+2}s;--lo:${Math.random()*.25+.05};--hi:${Math.random()*.55+.3};animation-delay:-${Math.random()*6}s;`;
-    sf.appendChild(s);
-  }
-  // meteors
-  for(let i=0;i<5;i++){
-    const m=document.createElement('div');
-    m.className='meteor';
-    m.style.cssText=`top:${Math.random()*45}%;left:${Math.random()*75}%;--s:${Math.random()*4+4}s;animation-delay:-${Math.random()*9}s;`;
-    sf.appendChild(m);
-  }
-})();
+  stars.forEach(s=>{
+    s.a+=s.da;if(s.a>1||s.a<.05){s.da*=-1;}
+    bgCtx.beginPath();bgCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(255,255,255,${s.a})`;bgCtx.fill();
+  });
+  // meteors occasionally
+  requestAnimationFrame(drawBg);
+}
+drawBg();
 
-// ── SKILL BAR ANIMATE ON SCROLL ──
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.querySelectorAll('.sk-fill').forEach(b=>{
-        b.style.width=b.style.width; // trigger reflow
-      });
+// ── ASTEROID BELT ──
+const abCanvas = document.getElementById('asteroid-belt');
+const abCtx = abCanvas.getContext('2d');
+const CX=350,CY=350;
+const asteroids=[];
+for(let i=0;i<180;i++){
+  const a=Math.random()*Math.PI*2;
+  const r=175+Math.random()*28;
+  asteroids.push({angle:a,r,size:Math.random()*1.2+.3,speed:Math.random()*.0004+.0001,op:Math.random()*.4+.1});
+}
+function drawAsteroids(){
+  abCtx.clearRect(0,0,700,700);
+  asteroids.forEach(a=>{
+    a.angle+=a.speed;
+    const x=CX+Math.cos(a.angle)*a.r;
+    const y=CY+Math.sin(a.angle)*a.r*.38; // perspective squash
+    abCtx.beginPath();abCtx.arc(x,y,a.size,0,Math.PI*2);
+    abCtx.fillStyle=`rgba(200,180,255,${a.op})`;abCtx.fill();
+  });
+  requestAnimationFrame(drawAsteroids);
+}
+drawAsteroids();
+
+// ── BUILD ORBITS & PLANETS ──
+const wrap = document.getElementById('system-wrap');
+const planetList = document.getElementById('planet-list');
+const angleState = {};
+
+PLANETS.forEach(p=>{
+  angleState[p.id]=p.startAngle*(Math.PI/180);
+
+  // orbit ring
+  const orb=document.createElement('div');
+  orb.className='orbit';
+  const d=p.radius*2;
+  orb.style.cssText=`width:${d}px;height:${d}px;`;
+  wrap.appendChild(orb);
+
+  // planet element
+  const el=document.createElement('div');
+  el.className='planet';
+  el.id='planet-'+p.id;
+  el.style.cssText=`width:${p.size}px;height:${p.size}px;background:${p.bg};box-shadow:0 0 18px 6px ${p.shadow};font-size:${p.size*.38}px;`;
+  el.innerHTML=`<span>${p.emoji}</span>`;
+  el.title=p.label;
+  wrap.appendChild(el);
+
+  // saturn-like ring for some
+  if(p.id==='deloitte'||p.id==='skill'){
+    const rng=document.createElement('div');
+    rng.className='planet-ring';
+    rng.style.cssText=`width:${p.size*1.7}px;height:${p.size*1.7}px;`;
+    el.appendChild(rng);
+  }
+
+  // left list item
+  const li=document.createElement('div');
+  li.className='pl-item';li.dataset.id=p.id;
+  li.innerHTML=`<div class="pl-dot" style="background:${p.color};box-shadow:0 0 5px ${p.color};"></div><span>${p.label}</span>`;
+  planetList.appendChild(li);
+  li.addEventListener('click',()=>openPanel(p.id));
+
+  el.addEventListener('click',()=>openPanel(p.id));
+});
+
+// ── ANIMATE PLANETS ──
+let lastT=0;
+function animatePlanets(t){
+  const dt=(t-lastT)/1000; lastT=t;
+  PLANETS.forEach(p=>{
+    angleState[p.id]+=p.speed*dt;
+    const a=angleState[p.id];
+    const x=CX+Math.cos(a)*p.radius;
+    const y=CY+Math.sin(a)*p.radius*.42; // perspective squash
+    const el=document.getElementById('planet-'+p.id);
+    if(el){
+      el.style.left=(x-p.size/2)+'px';
+      el.style.top=(y-p.size/2)+'px';
+      // depth z-index
+      el.style.zIndex=Math.round(20+y);
+      // size based on y (depth)
+      const depth=0.78+((y-CY+p.radius*.42)/(p.radius*.84))*0.22;
+      el.style.transform=`scale(${depth.toFixed(3)})`;
     }
   });
-},{threshold:.2});
-document.querySelectorAll('.skills-grid').forEach(el=>obs.observe(el));
-</script>
+  requestAnimationFrame(animatePlanets);
+}
+requestAnimationFrame(animatePlanets);
 
+// ── PANEL ──
+const panel=document.getElementById('panel');
+const panelBody=document.getElementById('panel-body');
+const panelClose=document.getElementById('panel-close');
+
+function openPanel(id){
+  const p=PLANETS.find(x=>x.id===id);
+  if(!p)return;
+  // highlight planet
+  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
+  document.getElementById('planet-'+id)?.classList.add('active');
+  document.querySelectorAll('.pl-item').forEach(li=>{li.classList.toggle('active',li.dataset.id===id);});
+
+  panel.style.setProperty('--panel-color',p.color);
+  let html=`<div class="panel-planet-icon">${p.content.icon}</div>
+    <div class="panel-pretitle">${p.content.pretitle||''}</div>
+    <div class="panel-title">${p.content.title}</div>`;
+
+  if(p.content.org) html+=`<div class="panel-org">${p.content.org}</div>`;
+  if(p.content.desc) html+=`<div class="panel-desc">${p.content.desc}</div>`;
+
+  // multi-item (education)
+  if(p.content.items){
+    p.content.items.forEach((item,i)=>{
+      if(i>0) html+=`<div class="panel-divider"></div>`;
+      html+=`<div class="panel-sub-title">${item.period}</div>
+        <div class="panel-title" style="font-size:1.05rem;margin-bottom:4px;">${item.title}</div>
+        <div class="panel-org">${item.org}</div>
+        <div class="panel-desc">${item.desc}</div>`;
+      if(item.tags) html+=`<div class="panel-tags">${item.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>`;
+    });
+  }
+
+  // bullets
+  if(p.content.bullets){
+    html+=`<ul class="panel-ul">${p.content.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+  }
+  if(p.content.tags){
+    html+=`<div class="panel-tags" style="margin-top:14px;">${p.content.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>`;
+  }
+
+  // skills
+  if(p.content.skills){
+    html+=`<div class="panel-sub-title" style="margin-top:4px;">熟练度</div>`;
+    p.content.skills.forEach(s=>{
+      html+=`<div class="sk-row"><span class="sk-lbl">${s.name}</span><div class="sk-bar"><div class="sk-fill" style="width:${s.pct}%;"></div></div></div>`;
+    });
+  }
+
+  panelBody.innerHTML=html;
+  panel.classList.add('open');
+}
+
+panelClose.addEventListener('click',()=>{
+  panel.classList.remove('open');
+  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.pl-item').forEach(li=>li.classList.remove('active'));
+});
+
+// ── SUN (about me) ──
+const sunContent={
+  id:'__sun__',emoji:'🌟',color:'#fbbf24',
+  content:{
+    icon:'🌟',pretitle:'About Me · 关于我',title:'张丹逸',
+    desc:'UCL 环境数据建模硕士 · 西交利物浦金融数学学士\n雅思 8.0 · 五段数据分析实习\n\n数据科学 × 环境建模 × 金融量化 的交叉探索者。\n擅长将复杂数据转化为洞察，善于在不同领域之间架桥。',
+    tags:['SQL','Python','R','SPSS','GIS','机器学习','NLP','金融量化','雅思8.0'],
+    bullets:[
+      '📧 13359485898@163.com',
+      '📱 (+86) 133-5948-5898',
+      '💬 微信：zdy020115',
+      '🐙 github.com/DanyiZhang2002',
+    ]
+  }
+};
+document.getElementById('sun-btn').addEventListener('click',()=>{
+  const p=sunContent;
+  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.pl-item').forEach(li=>li.classList.remove('active'));
+  panel.style.setProperty('--panel-color',p.color);
+  let html=`<div class="panel-planet-icon">${p.content.icon}</div>
+    <div class="panel-pretitle">${p.content.pretitle}</div>
+    <div class="panel-title">${p.content.title}</div>
+    <div class="panel-desc" style="white-space:pre-line;">${p.content.desc}</div>
+    <div class="panel-tags">${p.content.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
+    <div class="panel-divider"></div>
+    <div class="panel-sub-title">联系方式</div>
+    <ul class="panel-ul">${p.content.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+  panelBody.innerHTML=html;
+  panel.classList.add('open');
+});
+
+// ── BOTTOM NAV ──
+document.querySelectorAll('.nav-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(btn.dataset.tab==='contact') openPanel('__sun__') || document.getElementById('sun-btn').click();
+  });
+});
+
+// ── HIDE HINT ──
+setTimeout(()=>{const h=document.getElementById('hint');if(h)h.style.opacity='0';},6000);
+</script>
 </body>
 </html>
