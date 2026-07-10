@@ -3,595 +3,702 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>张丹逸 · 简历宇宙</title>
+<title>张丹逸 | 宇宙简历</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --bg:#04010f;
-  --ring:#c084fc;
-  --ring2:#818cf8;
-  --ring3:#f472b6;
-  --gold:#fbbf24;
-  --green:#34d399;
-  --blue:#60a5fa;
-  --text:#e2e8f0;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0014;
+  overflow: hidden;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e2e8f0;
+  cursor: default;
 }
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Georgia',serif;color:var(--text);}
+canvas { display: block; }
 
-/* ── CANVAS BG ── */
-#bg-canvas{position:fixed;inset:0;z-index:0;}
-
-/* ── SOLAR SYSTEM ── */
-#solar{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;}
-#system-wrap{position:relative;width:700px;height:700px;}
-
-/* sun */
-.sun{
-  position:absolute;top:50%;left:50%;
-  width:64px;height:64px;margin:-32px 0 0 -32px;
-  border-radius:50%;
-  background:radial-gradient(circle,#fff9c4,#fde68a 40%,#f59e0b 70%,transparent);
-  box-shadow:0 0 40px 20px rgba(251,191,36,.45),0 0 80px 40px rgba(251,191,36,.2);
-  z-index:10;cursor:pointer;
-  animation:sun-pulse 3s ease-in-out infinite;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;
+/* Top header */
+#header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  text-align: center;
+  padding: 28px 20px 16px;
+  z-index: 10;
+  pointer-events: none;
 }
-@keyframes sun-pulse{0%,100%{box-shadow:0 0 40px 20px rgba(251,191,36,.45),0 0 80px 40px rgba(251,191,36,.2);}50%{box-shadow:0 0 55px 28px rgba(251,191,36,.6),0 0 110px 55px rgba(251,191,36,.3);}}
-
-/* orbit rings */
-.orbit{
-  position:absolute;top:50%;left:50%;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.07);
-  transform:translate(-50%,-50%) rotateX(60deg);
-  transform-style:preserve-3d;
-  pointer-events:none;
+#header h1 {
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: #f0e6ff;
+  text-shadow: 0 0 30px rgba(147,51,234,0.5);
+}
+#header p {
+  font-size: 13px;
+  color: rgba(226,232,240,0.5);
+  margin-top: 6px;
+  letter-spacing: 3px;
 }
 
-/* planet */
-.planet{
-  position:absolute;
-  border-radius:50%;
-  cursor:pointer;
-  transition:transform .2s,filter .2s;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;letter-spacing:.04em;
-  text-align:center;line-height:1.2;
-  flex-direction:column;gap:2px;
-  user-select:none;
-  z-index:20;
+/* Left navigation */
+#left-nav {
+  position: fixed;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.planet:hover{transform:scale(1.18);filter:brightness(1.3);}
-.planet.active{filter:brightness(1.4);transform:scale(1.22);}
-.planet-label{
-  position:absolute;white-space:nowrap;
-  font-size:.65rem;letter-spacing:.08em;
-  color:rgba(226,232,240,.65);
-  top:calc(100% + 5px);left:50%;transform:translateX(-50%);
-  pointer-events:none;
+.nav-dot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s, transform 0.3s;
 }
-.planet-ring{
-  position:absolute;
-  border-radius:50%;border:2px solid rgba(255,255,255,.18);
-  pointer-events:none;
-  top:50%;left:50%;transform:translate(-50%,-50%) rotateX(70deg);
+.nav-dot:hover { opacity: 1; transform: translateX(4px); }
+.nav-dot.active { opacity: 1; }
+.nav-dot .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  transition: all 0.3s;
+}
+.nav-dot.active .dot {
+  border-color: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+.nav-dot .label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.nav-dot:hover .label { opacity: 1; }
+
+/* Right panel */
+#panel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: 380px;
+  background: rgba(10,0,20,0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(192,132,252,0.25);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  z-index: 20;
+  overflow-y: auto;
+  padding: 60px 32px 32px;
+}
+#panel.open { transform: translateX(0); }
+#panel-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+#panel-close:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+}
+#panel-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+#panel-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+#panel-subtitle {
+  font-size: 12px;
+  color: rgba(226,232,240,0.5);
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+#panel-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(226,232,240,0.85);
+}
+#panel-body .item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+#panel-body .item:last-child { border-bottom: none; }
+#panel-body .item-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+#panel-body .item-meta {
+  font-size: 12px;
+  color: rgba(226,232,240,0.45);
+  margin-bottom: 6px;
+}
+#panel-body .item-desc {
+  font-size: 13px;
+  color: rgba(226,232,240,0.7);
+  line-height: 1.7;
+}
+#panel-body .skill-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+#panel-body .skill-name {
+  font-size: 13px;
+  width: 72px;
+  text-align: right;
+  color: rgba(226,232,240,0.7);
+}
+#panel-body .skill-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+#panel-body .skill-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+#panel-body .skill-pct {
+  font-size: 11px;
+  width: 32px;
+  color: rgba(226,232,240,0.5);
+}
+#panel-body .contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+#panel-body .contact-label {
+  color: rgba(226,232,240,0.45);
+  width: 50px;
+  text-align: right;
+  font-size: 11px;
+  letter-spacing: 1px;
 }
 
-/* ── ASTEROID BELT ── */
-#asteroid-belt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:5;}
+/* Bottom nav */
+#bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px 20px;
+  z-index: 10;
+  background: linear-gradient(transparent, rgba(10,0,20,0.8));
+}
+#bottom-nav a {
+  font-size: 11px;
+  color: rgba(226,232,240,0.4);
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+#bottom-nav a:hover { color: rgba(226,232,240,0.8); }
 
-/* ── BOTTOM NAV ── */
-#bottom-nav{
-  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
-  display:flex;gap:8px;z-index:50;
-  background:rgba(4,1,15,.7);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:40px;padding:6px 8px;
+/* Tooltip */
+#tooltip {
+  position: fixed;
+  padding: 6px 14px;
+  background: rgba(10,0,20,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(192,132,252,0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e2e8f0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 15;
+  white-space: nowrap;
 }
-.nav-tab{
-  padding:8px 20px;border-radius:30px;font-size:.75rem;
-  letter-spacing:.1em;cursor:pointer;border:none;
-  color:rgba(226,232,240,.45);background:none;
-  transition:all .3s;font-family:inherit;
-}
-.nav-tab.active{background:rgba(192,132,252,.15);color:var(--ring);border:1px solid rgba(192,132,252,.3);}
-.nav-tab:hover:not(.active){color:rgba(226,232,240,.8);}
-
-/* ── LEFT PLANET LIST ── */
-#planet-list{
-  position:fixed;left:24px;top:50%;transform:translateY(-50%);
-  z-index:50;display:flex;flex-direction:column;gap:8px;
-}
-.pl-item{
-  display:flex;align-items:center;gap:9px;
-  padding:6px 12px 6px 8px;
-  border-radius:20px;cursor:pointer;
-  border:1px solid transparent;
-  transition:all .25s;font-size:.72rem;letter-spacing:.06em;
-  color:rgba(226,232,240,.45);
-}
-.pl-item:hover,.pl-item.active{
-  background:rgba(255,255,255,.06);
-  border-color:rgba(255,255,255,.12);
-  color:rgba(226,232,240,.9);
-}
-.pl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-
-/* ── TOP TITLE ── */
-#top-title{
-  position:fixed;top:24px;left:50%;transform:translateX(-50%);
-  z-index:50;text-align:center;pointer-events:none;
-}
-.tt-name{
-  font-size:1.5rem;font-weight:700;letter-spacing:.08em;
-  background:linear-gradient(135deg,#f1f5f9,#c084fc,#818cf8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.tt-sub{font-size:.7rem;color:rgba(226,232,240,.35);letter-spacing:.2em;margin-top:3px;}
-
-/* ── PANEL ── */
-#panel{
-  position:fixed;right:0;top:0;bottom:0;
-  width:400px;z-index:60;
-  background:rgba(4,1,15,.92);
-  backdrop-filter:blur(24px);
-  border-left:1px solid rgba(255,255,255,.08);
-  transform:translateX(100%);
-  transition:transform .4s cubic-bezier(.25,.8,.25,1);
-  overflow-y:auto;
-  padding:32px 28px 48px;
-}
-#panel.open{transform:translateX(0);}
-#panel-close{
-  position:absolute;top:18px;right:20px;
-  width:32px;height:32px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);
-  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
-  color:rgba(226,232,240,.6);transition:all .2s;
-}
-#panel-close:hover{background:rgba(255,255,255,.12);color:#fff;}
-.panel-planet-icon{font-size:48px;margin-bottom:16px;}
-.panel-pretitle{font-size:.68rem;color:var(--panel-color,#c084fc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px;}
-.panel-title{font-size:1.4rem;font-weight:700;margin-bottom:6px;color:#f1f5f9;}
-.panel-org{font-size:.85rem;color:var(--panel-color,#c084fc);margin-bottom:14px;}
-.panel-desc{font-size:.83rem;line-height:1.8;color:rgba(226,232,240,.65);margin-bottom:16px;}
-.panel-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
-.ptag{padding:3px 10px;border-radius:10px;font-size:.7rem;background:rgba(192,132,252,.1);color:var(--panel-color,#c084fc);border:1px solid rgba(192,132,252,.2);}
-.panel-ul{padding-left:16px;font-size:.82rem;line-height:1.85;color:rgba(226,232,240,.6);}
-.panel-ul li{margin-bottom:5px;}
-.panel-divider{height:1px;background:rgba(255,255,255,.07);margin:18px 0;}
-.panel-sub-title{font-size:.75rem;color:rgba(226,232,240,.35);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
-
-/* skill bar in panel */
-.sk-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.sk-lbl{font-size:.78rem;width:90px;flex-shrink:0;color:rgba(226,232,240,.7);}
-.sk-bar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;}
-.sk-fill{height:100%;border-radius:2px;background:var(--panel-color,#c084fc);}
-
-/* ── INTRO HINT ── */
-#hint{
-  position:fixed;bottom:88px;left:50%;transform:translateX(-50%);
-  font-size:.7rem;color:rgba(226,232,240,.28);letter-spacing:.12em;
-  pointer-events:none;z-index:40;text-align:center;
-  animation:hint-fade 2s ease 2s both;
-}
-@keyframes hint-fade{from{opacity:0;}to{opacity:1;}}
-
-/* scrollbar */
-#panel::-webkit-scrollbar{width:4px;}
-#panel::-webkit-scrollbar-thumb{background:rgba(192,132,252,.3);border-radius:2px;}
-
-@media(max-width:768px){
-  #system-wrap{width:380px;height:380px;}
-  #panel{width:100%;right:0;top:auto;bottom:0;height:75vh;border-left:none;border-top:1px solid rgba(255,255,255,.08);}
-  #planet-list{display:none;}
-  .tt-name{font-size:1.1rem;}
-}
+#tooltip.visible { opacity: 1; }
 </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
-<div id="top-title">
-  <div class="tt-name">张丹逸 · Resume Universe</div>
-  <div class="tt-sub">UCL · 西交利物浦 · 数据科学家 · 点击星球探索</div>
+<div id="header">
+  <h1>张 丹 逸</h1>
+  <p>Data Science · Environmental Modeling · NLP</p>
 </div>
 
-<!-- LEFT LIST -->
-<div id="planet-list"></div>
+<div id="left-nav"></div>
 
-<!-- SOLAR SYSTEM -->
-<div id="solar">
-  <div id="system-wrap">
-    <canvas id="asteroid-belt" width="700" height="700"></canvas>
-    <div class="sun" id="sun-btn" title="关于我">🌟</div>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div id="bottom-nav">
-  <button class="nav-tab active" data-tab="resume">✦ 简历宇宙</button>
-  <button class="nav-tab" data-tab="universe">🌌 宇宙观</button>
-  <button class="nav-tab" data-tab="contact">📡 联系</button>
-</div>
-
-<div id="hint">Click a planet · 点击星球探索</div>
-
-<!-- PANEL -->
 <div id="panel">
   <button id="panel-close">✕</button>
+  <div id="panel-icon"></div>
+  <div id="panel-title"></div>
+  <div id="panel-subtitle"></div>
   <div id="panel-body"></div>
 </div>
 
+<div id="tooltip"></div>
+
+<div id="bottom-nav">
+  <a data-idx="0">教育</a>
+  <a data-idx="1">小红书</a>
+  <a data-idx="2">Ipsos</a>
+  <a data-idx="3">Cryptoracle</a>
+  <a data-idx="4">科大讯飞</a>
+  <a data-idx="5">德勤</a>
+  <a data-idx="6">TCM-GPT</a>
+  <a data-idx="7">技能</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ── DATA ──
-const PLANETS = [
+// ==================== DATA ====================
+const planets = [
   {
-    id:'edu', emoji:'🎓', label:'教育星系', color:'#c084fc',
-    radius:85, size:44, startAngle:30, speed:0.18,
-    bg:'radial-gradient(circle at 35% 35%,#ddd6fe,#7c3aed 60%,#4c1d95)',
-    shadow:'rgba(192,132,252,.5)',
-    content:{
-      pretitle:'Academic Constellation',
-      title:'教育背景',
-      icon:'🎓',
-      items:[
-        {period:'2024.09 — 2026.02',title:'理学硕士 · 环境数据建模',org:'🏛️ 伦敦大学学院 UCL · 英国伦敦',
-         desc:'全球QS前10顶尖综合大学，专攻环境数据科学与建模。',
-         tags:['机器学习','气候统计建模','GIS空间分析','科学计算','陆地碳算法','数值分析']},
-        {period:'2020.09 — 2024.06',title:'理学学士 · 金融数学',org:'🏛️ 西交利物浦大学 · 苏州',
-         desc:'利物浦大学联合办学，全英语授课，国际化数理金融培养体系。',
-         tags:['概率统计','线性代数','计量经济学','风险管理','量化交易','金融工程']},
-      ]
-    }
+    name: '教育', icon: '🎓', color: '#9333ea', orbit: 60, size: 6, speed: 0.008,
+    subtitle: 'Education',
+    content: `<div class="item">
+      <div class="item-title">UCL · 环境数据建模 理学硕士</div>
+      <div class="item-meta">2024.09 - 2026.02</div>
+      <div class="item-desc">University College London，环境数据建模方向</div>
+    </div>
+    <div class="item">
+      <div class="item-title">西交利物浦大学 · 金融数学</div>
+      <div class="item-meta">2020 - 2024</div>
+      <div class="item-desc">本科金融数学专业</div>
+    </div>`
   },
   {
-    id:'xhs', emoji:'📱', label:'小红书', color:'#f43f5e',
-    radius:148, size:38, startAngle:110, speed:0.12,
-    bg:'radial-gradient(circle at 35% 35%,#fda4af,#e11d48 60%,#9f1239)',
-    shadow:'rgba(244,63,94,.5)',
-    content:{
-      pretitle:'2025.10 — 2025.12 · 上海',
-      title:'策略运营 · 社区回查数据岗',
-      icon:'📱',
-      org:'小红书',
-      bullets:[
-        '通过 SQL 搭建数据看板，构建完善的审核运营指标体系，设计 A/B 测试验证审核策略效果',
-        '针对风险回查中低召回率、低处置率问题进行特征因子挖掘，撰写分析报告推动策略链路优化',
-      ],
-      tags:['SQL','A/B 测试','数据看板','特征因子挖掘','策略运营'],
-    }
+    name: '小红书', icon: '📱', color: '#f43f5e', orbit: 90, size: 5.5, speed: 0.006,
+    subtitle: 'Xiaohongshu · Strategy Operations',
+    content: `<div class="item">
+      <div class="item-title">小红书 · 策略运营 — 社区回查数据岗</div>
+      <div class="item-meta">2025.10 - 2025.12 · 上海</div>
+      <div class="item-desc">• SQL 数据看板搭建与分析<br>• A/B 测试设计与效果评估<br>• 特征因子挖掘与策略优化</div>
+    </div>`
   },
   {
-    id:'ipsos', emoji:'📊', label:'Ipsos', color:'#60a5fa',
-    radius:205, size:34, startAngle:200, speed:0.09,
-    bg:'radial-gradient(circle at 35% 35%,#bae6fd,#2563eb 60%,#1e3a8a)',
-    shadow:'rgba(96,165,250,.5)',
-    content:{
-      pretitle:'2025.09 — 2025.10 · 上海',
-      title:'定量研究实习生',
-      icon:'📊',
-      org:'益普索 Ipsos',
-      bullets:[
-        '定量分析品牌广告投放效果，SPSS 提取核心数据，A/B 测试进行归因分析',
-        '核心参与《2025 年亿滋企业洞察商业分析》，独立负责 MDLZ 中国消费市场分析模块',
-      ],
-      tags:['SPSS','定量分析','A/B 测试','消费者洞察','市场研究'],
-    }
+    name: 'Ipsos', icon: '📊', color: '#3b82f6', orbit: 120, size: 5, speed: 0.005,
+    subtitle: 'Ipsos · Quantitative Research',
+    content: `<div class="item">
+      <div class="item-title">Ipsos 益普索 · 定量研究实习</div>
+      <div class="item-meta">2025.09 - 2025.10 · 上海</div>
+      <div class="item-desc">• SPSS 数据分析<br>• 品牌广告效果分析<br>• 亿滋（Mondelez）商业分析项目</div>
+    </div>`
   },
   {
-    id:'crypto', emoji:'₿', label:'Cryptoracle', color:'#fbbf24',
-    radius:258, size:30, startAngle:300, speed:0.07,
-    bg:'radial-gradient(circle at 35% 35%,#fef3c7,#d97706 60%,#78350f)',
-    shadow:'rgba(251,191,36,.5)',
-    content:{
-      pretitle:'2025.06 — 2025.07 · 马来西亚',
-      title:'数据分析实习生 · 产品部',
-      icon:'₿',
-      org:'Cryptoracle',
-      bullets:[
-        'SQL 提取清洗金融市场交易数据，PCA 主成分分析实现降维，挖掘价格波动特征因子',
-        '构建线性回归与时间序列预测模型，识别异常交易；Python 聚类分析构建用户画像标签体系',
-      ],
-      tags:['Python','SQL','PCA','时间序列','聚类分析','金融数据'],
-    }
+    name: 'Cryptoracle', icon: '₿', color: '#f59e0b', orbit: 145, size: 5, speed: 0.004,
+    subtitle: 'Cryptoracle · Data Analytics',
+    content: `<div class="item">
+      <div class="item-title">Cryptoracle · 数据分析实习</div>
+      <div class="item-meta">2025.06 - 2025.07 · 马来西亚</div>
+      <div class="item-desc">• SQL 数据查询与管理<br>• PCA 主成分分析<br>• 时间序列预测模型<br>• 聚类用户画像构建</div>
+    </div>`
   },
   {
-    id:'iflytek', emoji:'🤖', label:'科大讯飞', color:'#34d399',
-    radius:160, size:32, startAngle:260, speed:0.10,
-    bg:'radial-gradient(circle at 35% 35%,#a7f3d0,#059669 60%,#064e3b)',
-    shadow:'rgba(52,211,153,.5)',
-    content:{
-      pretitle:'2023.07 — 2023.10 · 苏州',
-      title:'研究分析实习生 · 知识图谱部',
-      icon:'🤖',
-      org:'科大讯飞',
-      bullets:[
-        '设计苏州司法案件文本分析多层次标签体系，确保标签准确性与可操作性',
-        'Python + NLP 实现案件自动分类与命名实体识别，机器识别准确率提升至 98%',
-      ],
-      tags:['Python','NLP','知识图谱','文本分类','实体识别'],
-    }
+    name: '科大讯飞', icon: '🤖', color: '#10b981', orbit: 168, size: 5.5, speed: 0.0035,
+    subtitle: 'iFlytek · Knowledge Graph',
+    content: `<div class="item">
+      <div class="item-title">科大讯飞 · 知识图谱部研究实习</div>
+      <div class="item-meta">2023.07 - 2023.10 · 苏州</div>
+      <div class="item-desc">• NLP 文本分类模型研发<br>• 分类准确率达到 98%<br>• 知识图谱构建与维护</div>
+    </div>`
   },
   {
-    id:'deloitte', emoji:'🏢', label:'德勤', color:'#a78bfa',
-    radius:230, size:36, startAngle:170, speed:0.08,
-    bg:'radial-gradient(circle at 35% 35%,#ede9fe,#7c3aed 60%,#4c1d95)',
-    shadow:'rgba(167,139,250,.5)',
-    content:{
-      pretitle:'2022.05 — 2022.08 · 重庆',
-      title:'风险咨询实习生',
-      icon:'🏢',
-      org:'德勤 Deloitte',
-      bullets:[
-        '承担每月业务数据核算，识别业务问题，撰写风险评估报告与内控优化方案',
-        '异常检测算法监测奔驰汽车项目数据，统计方法计算风险指标，预警准确率 93%',
-      ],
-      tags:['风险量化','异常检测','内控优化','统计分析'],
-    }
+    name: '德勤', icon: '🏢', color: '#a78bfa', orbit: 195, size: 5, speed: 0.003,
+    subtitle: 'Deloitte · Risk Advisory',
+    content: `<div class="item">
+      <div class="item-title">德勤 · 风险咨询实习</div>
+      <div class="item-meta">2022.05 - 2022.08 · 重庆</div>
+      <div class="item-desc">• 异常检测算法开发<br>• 风险预警系统优化<br>• 预警准确率达 93%</div>
+    </div>`
   },
   {
-    id:'tcm', emoji:'🌿', label:'TCM-GPT', color:'#f472b6',
-    radius:120, size:28, startAngle:350, speed:0.14,
-    bg:'radial-gradient(circle at 35% 35%,#fbcfe8,#db2777 60%,#831843)',
-    shadow:'rgba(244,114,182,.5)',
-    content:{
-      pretitle:'2023.09 — 2024.06 · 科研项目',
-      title:'TCM-GPT · 中医药大模型',
-      icon:'🌿',
-      org:'上海中医药大学 × 百度',
-      bullets:[
-        '参与基于"文心一言"架构的中医药语言模型构建，完成批量语料清洗与结构化转化',
-        '深度参与数百万字语料的预处理、标注与语义分析，提取症状/方剂/经络等实体关系',
-      ],
-      tags:['Python','NLP','大模型','知识图谱','语料清洗'],
-    }
+    name: 'TCM-GPT', icon: '🌿', color: '#f472b6', orbit: 220, size: 5, speed: 0.0025,
+    subtitle: 'TCM-GPT · NLP Research',
+    content: `<div class="item">
+      <div class="item-title">上海中医药大学 × 百度 · TCM-GPT</div>
+      <div class="item-meta">2023.09 - 2024.06</div>
+      <div class="item-desc">• 百万字中医语料数据处理<br>• NLP 实体识别模型训练<br>• 中医药知识图谱构建</div>
+    </div>`
   },
   {
-    id:'skill', emoji:'⚡', label:'技能星座', color:'#fbbf24',
-    radius:300, size:40, startAngle:70, speed:0.055,
-    bg:'radial-gradient(circle at 35% 35%,#fef9c3,#ca8a04 60%,#713f12)',
-    shadow:'rgba(251,191,36,.5)',
-    content:{
-      pretitle:'Skills Constellation',
-      title:'技能星座',
-      icon:'⚡',
-      skills:[
-        {name:'Python',pct:92},{name:'SQL',pct:90},{name:'R / Matlab',pct:82},
-        {name:'SPSS / Excel',pct:88},{name:'GIS 空间分析',pct:78},{name:'机器学习',pct:80},
-        {name:'NLP 文本分析',pct:78},{name:'金融量化建模',pct:75},{name:'英语（雅思8.0）',pct:95},
-      ]
-    }
-  },
+    name: '技能', icon: '⚡', color: '#fbbf24', orbit: 260, size: 7, speed: 0.002,
+    isSaturn: true,
+    subtitle: 'Technical Skills',
+    skills: [
+      { name: 'Python', pct: 92 },
+      { name: 'SQL', pct: 90 },
+      { name: 'SPSS', pct: 88 },
+      { name: 'R', pct: 82 },
+      { name: 'ML', pct: 80 },
+      { name: 'NLP', pct: 78 },
+      { name: 'GIS', pct: 78 },
+      { name: '英语', pct: 95 }
+    ],
+    content: 'skills'
+  }
 ];
 
-// ── BACKGROUND STARS ──
-const bgCanvas = document.getElementById('bg-canvas');
-const bgCtx = bgCanvas.getContext('2d');
-let stars = [];
-function resizeBg(){
-  bgCanvas.width=innerWidth; bgCanvas.height=innerHeight;
-  stars=[];
-  for(let i=0;i<280;i++){
-    stars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,
-      r:Math.random()*1.4+.3,a:Math.random(),da:(Math.random()*.015+.005)*(Math.random()<.5?1:-1)});
-  }
-}
-resizeBg();
-window.addEventListener('resize',resizeBg);
-
-function drawBg(){
-  bgCtx.fillStyle='#04010f';
-  bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-  // galactic haze
-  const g=bgCtx.createRadialGradient(innerWidth*.5,innerHeight*.5,0,innerWidth*.5,innerHeight*.5,innerWidth*.7);
-  g.addColorStop(0,'rgba(88,28,135,.18)');g.addColorStop(.5,'rgba(30,27,75,.12)');g.addColorStop(1,'transparent');
-  bgCtx.fillStyle=g;bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-  // stars
-  stars.forEach(s=>{
-    s.a+=s.da;if(s.a>1||s.a<.05){s.da*=-1;}
-    bgCtx.beginPath();bgCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    bgCtx.fillStyle=`rgba(255,255,255,${s.a})`;bgCtx.fill();
-  });
-  // meteors occasionally
-  requestAnimationFrame(drawBg);
-}
-drawBg();
-
-// ── ASTEROID BELT ──
-const abCanvas = document.getElementById('asteroid-belt');
-const abCtx = abCanvas.getContext('2d');
-const CX=350,CY=350;
-const asteroids=[];
-for(let i=0;i<180;i++){
-  const a=Math.random()*Math.PI*2;
-  const r=175+Math.random()*28;
-  asteroids.push({angle:a,r,size:Math.random()*1.2+.3,speed:Math.random()*.0004+.0001,op:Math.random()*.4+.1});
-}
-function drawAsteroids(){
-  abCtx.clearRect(0,0,700,700);
-  asteroids.forEach(a=>{
-    a.angle+=a.speed;
-    const x=CX+Math.cos(a.angle)*a.r;
-    const y=CY+Math.sin(a.angle)*a.r*.38; // perspective squash
-    abCtx.beginPath();abCtx.arc(x,y,a.size,0,Math.PI*2);
-    abCtx.fillStyle=`rgba(200,180,255,${a.op})`;abCtx.fill();
-  });
-  requestAnimationFrame(drawAsteroids);
-}
-drawAsteroids();
-
-// ── BUILD ORBITS & PLANETS ──
-const wrap = document.getElementById('system-wrap');
-const planetList = document.getElementById('planet-list');
-const angleState = {};
-
-PLANETS.forEach(p=>{
-  angleState[p.id]=p.startAngle*(Math.PI/180);
-
-  // orbit ring
-  const orb=document.createElement('div');
-  orb.className='orbit';
-  const d=p.radius*2;
-  orb.style.cssText=`width:${d}px;height:${d}px;`;
-  wrap.appendChild(orb);
-
-  // planet element
-  const el=document.createElement('div');
-  el.className='planet';
-  el.id='planet-'+p.id;
-  el.style.cssText=`width:${p.size}px;height:${p.size}px;background:${p.bg};box-shadow:0 0 18px 6px ${p.shadow};font-size:${p.size*.38}px;`;
-  el.innerHTML=`<span>${p.emoji}</span>`;
-  el.title=p.label;
-  wrap.appendChild(el);
-
-  // saturn-like ring for some
-  if(p.id==='deloitte'||p.id==='skill'){
-    const rng=document.createElement('div');
-    rng.className='planet-ring';
-    rng.style.cssText=`width:${p.size*1.7}px;height:${p.size*1.7}px;`;
-    el.appendChild(rng);
-  }
-
-  // left list item
-  const li=document.createElement('div');
-  li.className='pl-item';li.dataset.id=p.id;
-  li.innerHTML=`<div class="pl-dot" style="background:${p.color};box-shadow:0 0 5px ${p.color};"></div><span>${p.label}</span>`;
-  planetList.appendChild(li);
-  li.addEventListener('click',()=>openPanel(p.id));
-
-  el.addEventListener('click',()=>openPanel(p.id));
-});
-
-// ── ANIMATE PLANETS ──
-let lastT=0;
-function animatePlanets(t){
-  const dt=(t-lastT)/1000; lastT=t;
-  PLANETS.forEach(p=>{
-    angleState[p.id]+=p.speed*dt;
-    const a=angleState[p.id];
-    const x=CX+Math.cos(a)*p.radius;
-    const y=CY+Math.sin(a)*p.radius*.42; // perspective squash
-    const el=document.getElementById('planet-'+p.id);
-    if(el){
-      el.style.left=(x-p.size/2)+'px';
-      el.style.top=(y-p.size/2)+'px';
-      // depth z-index
-      el.style.zIndex=Math.round(20+y);
-      // size based on y (depth)
-      const depth=0.78+((y-CY+p.radius*.42)/(p.radius*.84))*0.22;
-      el.style.transform=`scale(${depth.toFixed(3)})`;
-    }
-  });
-  requestAnimationFrame(animatePlanets);
-}
-requestAnimationFrame(animatePlanets);
-
-// ── PANEL ──
-const panel=document.getElementById('panel');
-const panelBody=document.getElementById('panel-body');
-const panelClose=document.getElementById('panel-close');
-
-function openPanel(id){
-  const p=PLANETS.find(x=>x.id===id);
-  if(!p)return;
-  // highlight planet
-  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
-  document.getElementById('planet-'+id)?.classList.add('active');
-  document.querySelectorAll('.pl-item').forEach(li=>{li.classList.toggle('active',li.dataset.id===id);});
-
-  panel.style.setProperty('--panel-color',p.color);
-  let html=`<div class="panel-planet-icon">${p.content.icon}</div>
-    <div class="panel-pretitle">${p.content.pretitle||''}</div>
-    <div class="panel-title">${p.content.title}</div>`;
-
-  if(p.content.org) html+=`<div class="panel-org">${p.content.org}</div>`;
-  if(p.content.desc) html+=`<div class="panel-desc">${p.content.desc}</div>`;
-
-  // multi-item (education)
-  if(p.content.items){
-    p.content.items.forEach((item,i)=>{
-      if(i>0) html+=`<div class="panel-divider"></div>`;
-      html+=`<div class="panel-sub-title">${item.period}</div>
-        <div class="panel-title" style="font-size:1.05rem;margin-bottom:4px;">${item.title}</div>
-        <div class="panel-org">${item.org}</div>
-        <div class="panel-desc">${item.desc}</div>`;
-      if(item.tags) html+=`<div class="panel-tags">${item.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>`;
-    });
-  }
-
-  // bullets
-  if(p.content.bullets){
-    html+=`<ul class="panel-ul">${p.content.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
-  }
-  if(p.content.tags){
-    html+=`<div class="panel-tags" style="margin-top:14px;">${p.content.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>`;
-  }
-
-  // skills
-  if(p.content.skills){
-    html+=`<div class="panel-sub-title" style="margin-top:4px;">熟练度</div>`;
-    p.content.skills.forEach(s=>{
-      html+=`<div class="sk-row"><span class="sk-lbl">${s.name}</span><div class="sk-bar"><div class="sk-fill" style="width:${s.pct}%;"></div></div></div>`;
-    });
-  }
-
-  panelBody.innerHTML=html;
-  panel.classList.add('open');
-}
-
-panelClose.addEventListener('click',()=>{
-  panel.classList.remove('open');
-  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.pl-item').forEach(li=>li.classList.remove('active'));
-});
-
-// ── SUN (about me) ──
-const sunContent={
-  id:'__sun__',emoji:'🌟',color:'#fbbf24',
-  content:{
-    icon:'🌟',pretitle:'About Me · 关于我',title:'张丹逸',
-    desc:'UCL 环境数据建模硕士 · 西交利物浦金融数学学士\n雅思 8.0 · 五段数据分析实习\n\n数据科学 × 环境建模 × 金融量化 的交叉探索者。\n擅长将复杂数据转化为洞察，善于在不同领域之间架桥。',
-    tags:['SQL','Python','R','SPSS','GIS','机器学习','NLP','金融量化','雅思8.0'],
-    bullets:[
-      '📧 13359485898@163.com',
-      '📱 (+86) 133-5948-5898',
-      '💬 微信：zdy020115',
-      '🐙 github.com/DanyiZhang2002',
-    ]
-  }
+const centerData = {
+  name: '张丹逸',
+  icon: '☀️',
+  subtitle: 'Contact & Links',
+  content: 'center'
 };
-document.getElementById('sun-btn').addEventListener('click',()=>{
-  const p=sunContent;
-  document.querySelectorAll('.planet').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.pl-item').forEach(li=>li.classList.remove('active'));
-  panel.style.setProperty('--panel-color',p.color);
-  let html=`<div class="panel-planet-icon">${p.content.icon}</div>
-    <div class="panel-pretitle">${p.content.pretitle}</div>
-    <div class="panel-title">${p.content.title}</div>
-    <div class="panel-desc" style="white-space:pre-line;">${p.content.desc}</div>
-    <div class="panel-tags">${p.content.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
-    <div class="panel-divider"></div>
-    <div class="panel-sub-title">联系方式</div>
-    <ul class="panel-ul">${p.content.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
-  panelBody.innerHTML=html;
-  panel.classList.add('open');
-});
 
-// ── BOTTOM NAV ──
-document.querySelectorAll('.nav-tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    if(btn.dataset.tab==='contact') openPanel('__sun__') || document.getElementById('sun-btn').click();
+// ==================== SCENE SETUP ====================
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+camera.position.set(0, 280, 200);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x0a0014);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+
+// ==================== LIGHTING ====================
+const ambientLight = new THREE.AmbientLight(0x1a0a2e, 0.6);
+scene.add(ambientLight);
+
+const centerLight = new THREE.PointLight(0xfce4a8, 2.5, 600, 1.5);
+centerLight.position.set(0, 20, 0);
+scene.add(centerLight);
+
+const fillLight = new THREE.PointLight(0x9333ea, 0.4, 500);
+fillLight.position.set(-100, 80, -100);
+scene.add(fillLight);
+
+// ==================== CENTER STAR ====================
+const starGeom = new THREE.SphereGeometry(16, 48, 48);
+const starMat = new THREE.MeshBasicMaterial({ color: 0xffeebb });
+const star = new THREE.Mesh(starGeom, starMat);
+star.position.set(0, 0, 0);
+star.userData = { isCenter: true, dataIdx: -1 };
+scene.add(star);
+
+// Star glow
+const glowGeom = new THREE.SphereGeometry(22, 32, 32);
+const glowMat = new THREE.MeshBasicMaterial({
+  color: 0xffdd88, transparent: true, opacity: 0.15
+});
+const glow = new THREE.Mesh(glowGeom, glowMat);
+scene.add(glow);
+
+// Star outer glow
+const glow2Geom = new THREE.SphereGeometry(30, 32, 32);
+const glow2Mat = new THREE.MeshBasicMaterial({
+  color: 0xcc88ff, transparent: true, opacity: 0.06
+});
+const glow2 = new THREE.Mesh(glow2Geom, glow2Mat);
+scene.add(glow2);
+
+// ==================== BACKGROUND STARS ====================
+const bgStarsCount = 2000;
+const bgStarsGeom = new THREE.BufferGeometry();
+const bgStarsPos = new Float32Array(bgStarsCount * 3);
+const bgStarsSizes = new Float32Array(bgStarsCount);
+for (let i = 0; i < bgStarsCount; i++) {
+  const r = 500 + Math.random() * 800;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.random() * Math.PI;
+  bgStarsPos[i*3] = r * Math.sin(phi) * Math.cos(theta);
+  bgStarsPos[i*3+1] = (Math.random() - 0.3) * 600;
+  bgStarsPos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+  bgStarsSizes[i] = 0.5 + Math.random() * 1.5;
+}
+bgStarsGeom.setAttribute('position', new THREE.BufferAttribute(bgStarsPos, 3));
+bgStarsGeom.setAttribute('size', new THREE.BufferAttribute(bgStarsSizes, 1));
+const bgStarsMat = new THREE.PointsMaterial({
+  color: 0xddd8ff, size: 1.2, transparent: true, opacity: 0.7,
+  sizeAttenuation: true
+});
+const bgStars = new THREE.Points(bgStarsGeom, bgStarsMat);
+scene.add(bgStars);
+
+// ==================== ORBIT PARTICLES ====================
+function createOrbitParticles(radius, color, count) {
+  count = count || Math.floor(500 + (radius / 260) * 300);
+  const geom = new THREE.BufferGeometry();
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const spread = (Math.random() - 0.5) * 4;
+    const r = radius + spread;
+    pos[i*3] = Math.cos(angle) * r;
+    pos[i*3+1] = (Math.random() - 0.5) * 1.5;
+    pos[i*3+2] = Math.sin(angle) * r;
+  }
+  geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const c = new THREE.Color(color);
+  const mat = new THREE.PointsMaterial({
+    color: c, size: 0.8, transparent: true, opacity: 0.3,
+    sizeAttenuation: true
   });
+  return new THREE.Points(geom, mat);
+}
+
+planets.forEach(p => {
+  const orbitLine = createOrbitParticles(p.orbit, p.color);
+  scene.add(orbitLine);
 });
 
-// ── HIDE HINT ──
-setTimeout(()=>{const h=document.getElementById('hint');if(h)h.style.opacity='0';},6000);
+// ==================== PLANETS ====================
+const planetMeshes = [];
+const planetAngles = [];
+
+planets.forEach((p, idx) => {
+  const geom = new THREE.SphereGeometry(p.size, 32, 32);
+  const mat = new THREE.MeshPhongMaterial({
+    color: new THREE.Color(p.color),
+    emissive: new THREE.Color(p.color).multiplyScalar(0.15),
+    shininess: 80,
+    specular: new THREE.Color(0xffffff).multiplyScalar(0.4),
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  const startAngle = Math.random() * Math.PI * 2;
+  mesh.position.set(
+    Math.cos(startAngle) * p.orbit,
+    0,
+    Math.sin(startAngle) * p.orbit
+  );
+  mesh.userData = { dataIdx: idx };
+  scene.add(mesh);
+  planetMeshes.push(mesh);
+  planetAngles.push(startAngle);
+
+  // Planet glow
+  const pgGeom = new THREE.SphereGeometry(p.size * 1.4, 16, 16);
+  const pgMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(p.color), transparent: true, opacity: 0.08
+  });
+  const pgMesh = new THREE.Mesh(pgGeom, pgMat);
+  mesh.add(pgMesh);
+
+  // Saturn ring
+  if (p.isSaturn) {
+    const ringGeom = new THREE.TorusGeometry(p.size * 1.8, 1.2, 2, 64);
+    const ringMat = new THREE.MeshPhongMaterial({
+      color: new THREE.Color(p.color),
+      emissive: new THREE.Color(p.color).multiplyScalar(0.2),
+      transparent: true, opacity: 0.6,
+      shininess: 40,
+      side: THREE.DoubleSide
+    });
+    const ring = new THREE.Mesh(ringGeom, ringMat);
+    ring.rotation.x = Math.PI / 2.2;
+    mesh.add(ring);
+
+    // Second ring
+    const ring2Geom = new THREE.TorusGeometry(p.size * 2.2, 0.6, 2, 64);
+    const ring2Mat = new THREE.MeshPhongMaterial({
+      color: new THREE.Color(p.color),
+      transparent: true, opacity: 0.3,
+      side: THREE.DoubleSide
+    });
+    const ring2 = new THREE.Mesh(ring2Geom, ring2Mat);
+    ring2.rotation.x = Math.PI / 2.2;
+    mesh.add(ring2);
+  }
+});
+
+// ==================== RAYCASTER ====================
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hoveredPlanet = null;
+
+const allClickable = [star, ...planetMeshes];
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(allClickable);
+  
+  const tooltip = document.getElementById('tooltip');
+  if (intersects.length > 0) {
+    const obj = intersects[0].object;
+    const dIdx = obj.userData.dataIdx;
+    renderer.domElement.style.cursor = 'pointer';
+    
+    if (obj.userData.isCenter) {
+      tooltip.textContent = '☀️ 张丹逸 · 点击查看联系方式';
+    } else {
+      const p = planets[dIdx];
+      tooltip.textContent = p.icon + ' ' + p.name;
+    }
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+    tooltip.classList.add('visible');
+    hoveredPlanet = obj;
+  } else {
+    renderer.domElement.style.cursor = 'default';
+    tooltip.classList.remove('visible');
+    hoveredPlanet = null;
+  }
+});
+
+renderer.domElement.addEventListener('click', (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(allClickable);
+  
+  if (intersects.length > 0) {
+    const obj = intersects[0].object;
+    const dIdx = obj.userData.dataIdx;
+    if (obj.userData.isCenter) {
+      openPanel(-1);
+    } else {
+      openPanel(dIdx);
+    }
+  }
+});
+
+// ==================== PANEL ====================
+const panel = document.getElementById('panel');
+const panelIcon = document.getElementById('panel-icon');
+const panelTitle = document.getElementById('panel-title');
+const panelSubtitle = document.getElementById('panel-subtitle');
+const panelBody = document.getElementById('panel-body');
+let currentPanelIdx = null;
+
+function openPanel(idx) {
+  currentPanelIdx = idx;
+  document.querySelectorAll('.nav-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+
+  if (idx === -1) {
+    panelIcon.textContent = '☀️';
+    panelTitle.textContent = '张丹逸';
+    panelTitle.style.color = '#ffdd88';
+    panelSubtitle.textContent = 'Contact & Links';
+    panelBody.innerHTML = `
+      <div class="contact-row"><span class="contact-label">邮箱</span><span>13359485898@163.com</span></div>
+      <div class="contact-row"><span class="contact-label">手机</span><span>133-5948-5898</span></div>
+      <div class="contact-row"><span class="contact-label">微信</span><span>zdy020115</span></div>
+      <div class="contact-row"><span class="contact-label">GitHub</span><span>DanyiZhang2002</span></div>
+    `;
+  } else {
+    const p = planets[idx];
+    panelIcon.textContent = p.icon;
+    panelTitle.textContent = p.name;
+    panelTitle.style.color = p.color;
+    panelSubtitle.textContent = p.subtitle;
+
+    if (p.content === 'skills') {
+      panelBody.innerHTML = p.skills.map(s => `
+        <div class="skill-bar">
+          <span class="skill-name">${s.name}</span>
+          <div class="skill-track">
+            <div class="skill-fill" style="width:0%;background:${p.color};" data-target="${s.pct}"></div>
+          </div>
+          <span class="skill-pct">${s.pct}%</span>
+        </div>
+      `).join('');
+      // Animate skill bars
+      setTimeout(() => {
+        panelBody.querySelectorAll('.skill-fill').forEach(el => {
+          el.style.width = el.dataset.target + '%';
+        });
+      }, 100);
+    } else {
+      panelBody.innerHTML = p.content;
+    }
+  }
+
+  panel.classList.add('open');
+  document.getElementById('tooltip').classList.remove('visible');
+}
+
+function closePanel() {
+  panel.classList.remove('open');
+  currentPanelIdx = null;
+  document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+}
+
+document.getElementById('panel-close').addEventListener('click', closePanel);
+
+// ==================== LEFT NAV ====================
+const leftNav = document.getElementById('left-nav');
+planets.forEach((p, idx) => {
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot';
+  dot.style.color = p.color;
+  dot.innerHTML = `<span class="dot" style="background:${p.color}30;border-color:${p.color}88"></span><span class="label">${p.icon} ${p.name}</span>`;
+  dot.addEventListener('click', () => openPanel(idx));
+  leftNav.appendChild(dot);
+});
+
+// Bottom nav
+document.querySelectorAll('#bottom-nav a').forEach(a => {
+  a.addEventListener('click', () => openPanel(parseInt(a.dataset.idx)));
+});
+
+// ==================== ANIMATION ====================
+let time = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  time += 1;
+
+  // Rotate planets
+  planetMeshes.forEach((mesh, idx) => {
+    planetAngles[idx] += planets[idx].speed;
+    const r = planets[idx].orbit;
+    mesh.position.x = Math.cos(planetAngles[idx]) * r;
+    mesh.position.z = Math.sin(planetAngles[idx]) * r;
+    mesh.rotation.y += 0.01;
+  });
+
+  // Star pulse
+  const pulse = 1 + Math.sin(time * 0.02) * 0.05;
+  star.scale.set(pulse, pulse, pulse);
+  glow.scale.set(pulse * 1.1, pulse * 1.1, pulse * 1.1);
+  glow2.scale.set(pulse * 0.95, pulse * 0.95, pulse * 0.95);
+
+  // Star glow rotation
+  glow.rotation.y += 0.002;
+  glow2.rotation.y -= 0.001;
+
+  // Background stars twinkle
+  bgStars.rotation.y += 0.0001;
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// ==================== RESIZE ====================
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
 </body>
 </html>
