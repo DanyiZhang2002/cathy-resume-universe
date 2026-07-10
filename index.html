@@ -2,452 +2,609 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Danyi's Universe</title>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
-/* 所有CSS必须完整写出 */
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#050010; overflow:hidden; font-family:'Inter',sans-serif; color:#e2e8f0; }
-canvas { display:block; position:fixed; top:0; left:0; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#050010;font-family:'Inter',sans-serif;color:#fff;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(90,30,140,0.25) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(40,20,120,0.2) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(20,10,60,0.3) 0%,transparent 70%);pointer-events:none;z-index:0;}
+canvas{position:fixed;inset:0;z-index:1;display:block;}
 
-/* 左上标题 */
-#title { position:fixed; top:28px; left:32px; z-index:100; pointer-events:none; }
-.u-name { font-family:'Dancing Script',cursive; font-size:2rem; color:#c4b5fd; text-shadow:0 0 20px rgba(196,181,253,0.5); }
-.u-sub { font-size:0.7rem; letter-spacing:0.25em; color:rgba(226,232,240,0.4); margin-top:2px; }
+/* Loading */
+#loading{position:fixed;inset:0;z-index:9999;background:#050010;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s ease;}
+#loading.done{opacity:0;pointer-events:none;}
+#loading h2{font-family:'Dancing Script',cursive;font-size:2.2rem;color:#e0d0ff;margin-bottom:24px;letter-spacing:2px;}
+.progress-bar{width:260px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#a78bfa,#60a5fa,#f472b6);border-radius:4px;transition:width 0.3s ease;}
+.progress-text{margin-top:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);letter-spacing:1px;}
 
-/* 右上计数 */
-#counter { position:fixed; top:28px; right:32px; z-index:100; font-size:0.72rem; letter-spacing:0.15em; color:rgba(226,232,240,0.45); }
+/* Title */
+#title{position:fixed;top:28px;left:32px;z-index:100;font-family:'Dancing Script',cursive;font-size:2rem;color:rgba(224,208,255,0.85);text-shadow:0 0 20px rgba(167,139,250,0.4);cursor:default;user-select:none;transition:opacity 0.4s;}
+#title:hover{text-shadow:0 0 30px rgba(167,139,250,0.7);}
 
-/* 底部导航 */
-#bottom-nav { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index:100; display:flex; gap:10px; }
-.nav-btn { padding:10px 24px; border-radius:30px; border:1px solid rgba(196,181,253,0.25); background:rgba(5,0,16,0.7); backdrop-filter:blur(12px); color:rgba(226,232,240,0.55); font-size:0.75rem; letter-spacing:0.1em; cursor:pointer; transition:all 0.3s; font-family:'Inter',sans-serif; }
-.nav-btn.active, .nav-btn:hover { color:#c4b5fd; border-color:rgba(196,181,253,0.5); background:rgba(196,181,253,0.08); }
+/* Counter */
+#counter{position:fixed;top:28px;right:32px;z-index:100;font-size:0.95rem;color:rgba(253,230,138,0.8);font-weight:500;letter-spacing:0.5px;cursor:default;user-select:none;transition:color 0.3s,text-shadow 0.3s;}
+#counter.glow{color:#fde68a;text-shadow:0 0 12px rgba(253,230,138,0.5);}
 
-/* 行星标签 */
-.planet-label { position:fixed; pointer-events:none; z-index:50; font-size:0.62rem; letter-spacing:0.12em; color:rgba(226,232,240,0.7); transform:translateX(-50%); text-align:center; white-space:nowrap; text-shadow:0 0 8px rgba(0,0,0,0.8); }
+/* Bottom Nav */
+#bottom-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:6px;background:rgba(5,0,20,0.7);backdrop-filter:blur(16px);border:1px solid rgba(196,181,253,0.15);border-radius:50px;padding:6px 10px;transition:opacity 0.4s;}
+#bottom-nav.hidden{opacity:0;pointer-events:none;}
+.nav-btn{padding:7px 14px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:0.75rem;font-family:'Inter',sans-serif;border-radius:20px;cursor:pointer;transition:all 0.25s;white-space:nowrap;}
+.nav-btn:hover{background:rgba(196,181,253,0.12);color:#fff;}
+.nav-btn.active{background:rgba(167,139,250,0.2);color:#c4b5fd;font-weight:500;}
 
-/* 右侧面板 */
-#panel { position:fixed; right:0; top:0; bottom:0; width:380px; z-index:200; background:rgba(5,0,20,0.88); backdrop-filter:blur(24px); border-left:1px solid rgba(196,181,253,0.15); transform:translateX(100%); transition:transform 0.45s cubic-bezier(0.25,0.8,0.25,1); overflow-y:auto; padding:40px 28px 60px; }
-#panel.open { transform:translateX(0); }
-#panel-close { position:absolute; top:20px; right:20px; width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); cursor:pointer; color:rgba(226,232,240,0.6); font-size:14px; display:flex; align-items:center; justify-content:center; }
-#panel-close:hover { background:rgba(255,255,255,0.12); color:#fff; }
-.p-icon { font-size:44px; margin-bottom:16px; }
-.p-period { font-size:0.68rem; color:var(--pc,#c4b5fd); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:6px; }
-.p-title { font-size:1.35rem; font-weight:600; color:#f1f5f9; margin-bottom:4px; }
-.p-org { font-size:0.85rem; color:var(--pc,#c4b5fd); margin-bottom:14px; }
-.p-bullets { padding-left:14px; font-size:0.82rem; line-height:1.85; color:rgba(226,232,240,0.62); }
-.p-bullets li { margin-bottom:5px; }
-.p-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
-.p-tag { padding:3px 10px; border-radius:10px; font-size:0.7rem; background:rgba(196,181,253,0.1); color:var(--pc,#c4b5fd); border:1px solid rgba(196,181,253,0.2); }
-.p-divider { height:1px; background:rgba(255,255,255,0.07); margin:18px 0; }
-.p-sub { font-size:0.7rem; color:rgba(226,232,240,0.35); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:10px; }
-.sk-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
-.sk-lbl { font-size:0.78rem; width:100px; flex-shrink:0; color:rgba(226,232,240,0.7); }
-.sk-bar { flex:1; height:3px; background:rgba(255,255,255,0.08); border-radius:2px; }
-.sk-fill { height:100%; border-radius:2px; background:var(--pc,#c4b5fd); transition:width 1.2s ease; }
+/* Panel */
+#panel{position:fixed;right:0;top:0;bottom:0;width:380px;background:rgba(5,0,20,0.88);backdrop-filter:blur(24px);border-left:1px solid rgba(196,181,253,0.2);transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.25,0.8,0.25,1);overflow-y:auto;padding:40px 28px 60px;z-index:200;}
+#panel.open{transform:translateX(0);}
+#panel::-webkit-scrollbar{width:4px;}
+#panel::-webkit-scrollbar-track{background:transparent;}
+#panel::-webkit-scrollbar-thumb{background:rgba(196,181,253,0.2);border-radius:4px;}
+.panel-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:1.1rem;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.panel-close:hover{background:rgba(255,255,255,0.12);color:#fff;transform:rotate(90deg);}
+.panel-icon{font-size:2.4rem;margin-bottom:8px;}
+.panel-period{font-size:0.75rem;color:rgba(167,139,250,0.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:500;}
+.panel-title{font-size:1.3rem;font-weight:700;margin-bottom:4px;background:linear-gradient(135deg,#e0d0ff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.panel-org{font-size:0.9rem;color:rgba(255,255,255,0.5);margin-bottom:20px;font-weight:300;}
+.panel-bullets{list-style:none;margin-bottom:20px;}
+.panel-bullets li{position:relative;padding:8px 0 8px 18px;font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.5;border-left:1px solid rgba(196,181,253,0.2);}
+.panel-bullets li::before{content:'◆';position:absolute;left:0;top:8px;font-size:0.4rem;color:rgba(167,139,250,0.6);}
+.panel-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.panel-tag{padding:4px 10px;font-size:0.7rem;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.15);border-radius:12px;color:rgba(196,181,253,0.8);}
 
-/* 滚动条 */
-#panel::-webkit-scrollbar { width:3px; }
-#panel::-webkit-scrollbar-thumb { background:rgba(196,181,253,0.3); border-radius:2px; }
+/* Skills */
+.skills-grid{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+.skill-item{display:flex;align-items:center;gap:12px;}
+.skill-name{font-size:0.8rem;color:rgba(255,255,255,0.7);min-width:80px;}
+.skill-bar{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.skill-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.25,0.8,0.25,1);}
+.skill-pct{font-size:0.7rem;color:rgba(255,255,255,0.4);min-width:30px;text-align:right;}
+
+/* Contact links */
+.contact-links a{color:rgba(96,165,250,0.9);text-decoration:none;transition:color 0.2s;}
+.contact-links a:hover{color:#93c5fd;text-decoration:underline;}
+
+/* Mobile */
+@media(max-width:768px){
+  #panel{width:100%;}
+  #title{font-size:1.5rem;top:16px;left:16px;}
+  #counter{top:16px;right:16px;font-size:0.8rem;}
+  #bottom-nav{bottom:12px;padding:4px 8px;gap:4px;}
+  .nav-btn{padding:5px 10px;font-size:0.7rem;}
+}
 </style>
 </head>
 <body>
 
-<div id="title">
-  <div class="u-name">Danyi's Universe</div>
-  <div class="u-sub">DANYI ZHANG · DATA SCIENTIST</div>
+<!-- Loading Screen -->
+<div id="loading">
+  <h2>Loading Universe...</h2>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 / 8 planets loaded</div>
 </div>
 
-<div id="counter">✦ <span id="disc">0</span> / 8 worlds discovered</div>
+<!-- Canvas -->
+<canvas id="c"></canvas>
 
-<div id="bottom-nav">
-  <button class="nav-btn active" onclick="showTab('resume')">✦ Professional Cosmos</button>
-  <button class="nav-btn" onclick="showTab('contact')">✦ Contact</button>
+<!-- Title -->
+<div id="title">Danyi's Universe</div>
+
+<!-- Counter -->
+<div id="counter">✦ 0/8 worlds discovered</div>
+
+<!-- Bottom Nav -->
+<div id="bottom-nav" class="hidden">
+  <button class="nav-btn" data-idx="0">🎓 教育</button>
+  <button class="nav-btn" data-idx="1">📱 小红书</button>
+  <button class="nav-btn" data-idx="2">📊 Ipsos</button>
+  <button class="nav-btn" data-idx="3">₿ Crypto</button>
+  <button class="nav-btn" data-idx="4">🤖 讯飞</button>
+  <button class="nav-btn" data-idx="5">🏢 德勤</button>
+  <button class="nav-btn" data-idx="6">🌿 TCM</button>
+  <button class="nav-btn" data-idx="7">⚡ 技能</button>
+  <button class="nav-btn" data-idx="8">🌟 联系</button>
 </div>
 
+<!-- Panel -->
 <div id="panel">
-  <button id="panel-close" onclick="closePanel()">✕</button>
-  <div id="panel-body"></div>
+  <button class="panel-close" id="panelClose">✕</button>
+  <div id="panelContent"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ═══════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════
-const PLANETS = [
-  { name:'教育星系', icon:'🎓', color:'#c4b5fd', emissive:'#2d1b69', orbitR:75, size:6.5, speed:0.0055, startAngle:0.5, useTexture:'earth',
-    content:{ period:'2020 – 2026', title:'教育背景', org:'UCL · 西交利物浦大学',
-      bullets:['🎓 UCL 环境数据建模 理学硕士（2024–2026，英国伦敦）','🎓 西交利物浦大学 金融数学 理学学士（2020–2024，苏州）','📝 雅思 IELTS 8.0（全球前5%）'],
-      tags:['环境数据科学','金融数学','机器学习','GIS','时间序列'] }},
+(function(){
+'use strict';
 
-  { name:'小红书', icon:'📱', color:'#fb7185', emissive:'#5b1a2a', orbitR:120, size:5.5, speed:0.0045, startAngle:1.8,
-    content:{ period:'2025.10 – 2025.12', title:'策略运营实习生', org:'小红书 · 上海',
-      bullets:['通过 SQL 搭建数据看板，构建完善的审核运营指标体系','设计 A/B 测试方案，验证审核策略效果并量化提升幅度','针对低召回率问题进行特征因子挖掘，撰写分析报告推动链路优化'],
-      tags:['SQL','A/B 测试','数据看板','特征挖掘'] }},
-
-  { name:'Ipsos', icon:'📊', color:'#60a5fa', emissive:'#1a3a6b', orbitR:165, size:5.2, speed:0.0035, startAngle:3.2,
-    content:{ period:'2025.09 – 2025.10', title:'定量研究实习生', org:'益普索 Ipsos · 上海',
-      bullets:['定量分析品牌广告投放效果，完成多维度归因分析','SPSS 提取核心数据指标，A/B 测试进行效果归因','核心参与《2025年亿滋企业洞察商业分析》报告'],
-      tags:['SPSS','定量分析','A/B 测试','消费者洞察'] }},
-
-  { name:'Cryptoracle', icon:'₿', color:'#fbbf24', emissive:'#5c3a00', orbitR:205, size:5.2, speed:0.0028, startAngle:0.9,
-    content:{ period:'2025.06 – 2025.07', title:'数据分析实习生', org:'Cryptoracle · 马来西亚',
-      bullets:['SQL 提取清洗金融市场交易数据，PCA 主成分分析降维','构建线性回归与时间序列预测模型，识别异常交易模式','Python 聚类分析构建用户画像标签体系，精准定位用户群'],
-      tags:['Python','SQL','PCA','时间序列','聚类分析'] }},
-
-  { name:'科大讯飞', icon:'🤖', color:'#34d399', emissive:'#064e3b', orbitR:245, size:5.5, speed:0.0022, startAngle:4.1,
-    content:{ period:'2023.07 – 2023.10', title:'研究分析实习生', org:'科大讯飞 知识图谱部 · 苏州',
-      bullets:['设计苏州司法案件文本分析多层次标签体系','Python + NLP 实现案件自动分类与命名实体识别','机器识别准确率提升至 98%，显著降低人工审核成本'],
-      tags:['Python','NLP','知识图谱','文本分类','实体识别'] }},
-
-  { name:'德勤', icon:'🏢', color:'#a78bfa', emissive:'#3b0764', orbitR:285, size:5.2, speed:0.0018, startAngle:2.4,
-    content:{ period:'2022.05 – 2022.08', title:'风险咨询实习生', org:'德勤 Deloitte · 重庆',
-      bullets:['承担每月业务数据核算，识别业务问题并提出改进建议','撰写风险评估报告与内控优化方案，获主管高度认可','异常检测算法监测项目数据，风险预警准确率达 93%'],
-      tags:['风险量化','异常检测','内控优化','统计分析'] }},
-
-  { name:'TCM-GPT', icon:'🌿', color:'#f472b6', emissive:'#831843', orbitR:325, size:4.8, speed:0.0015, startAngle:5.0,
-    content:{ period:'2023.09 – 2024.06', title:'中医药大模型项目', org:'上海中医药大学 × 百度',
-      bullets:['参与基于"文心一言"架构的中医药语言模型构建','完成批量语料清洗与结构化转化（百万字级别）','深度参与预处理、标注与语义分析，提取症状/方剂/经络实体关系'],
-      tags:['Python','NLP','大模型','知识图谱','语料处理'] }},
-
-  { name:'技能星座', icon:'⚡', color:'#fde68a', emissive:'#713f12', orbitR:375, size:7.5, speed:0.0012, startAngle:1.5, isSaturn:true, useTexture:'moon',
-    content:{ period:'Skills Constellation', title:'技能星座', org:'数据科学技能树',
-      skills:[
-        {name:'Python',pct:92},{name:'SQL',pct:90},{name:'R / Matlab',pct:82},
-        {name:'SPSS / Excel',pct:88},{name:'GIS 空间分析',pct:78},{name:'机器学习',pct:80},
-        {name:'NLP 文本分析',pct:78},{name:'英语（雅思8.0）',pct:95}
-      ]}},
+// ─── DATA ───
+var PLANETS = [
+  {name:'教育星系',icon:'🎓',color:'#c4b5fd',orbitR:80,size:6,speed:0.006,angle:0.5,glb:'./models/edu.glb',
+   content:{period:'2020–2026',title:'教育背景',org:'UCL · 西交利物浦大学',
+    bullets:['UCL 环境数据建模 理学硕士（2024–2026，伦敦）','西交利物浦大学 金融数学 学士（2020–2024，苏州）','雅思 IELTS 8.0'],
+    tags:['环境数据科学','金融数学','GIS','时间序列']}},
+  {name:'小红书',icon:'📱',color:'#fb7185',orbitR:125,size:5.5,speed:0.005,angle:1.8,glb:'./models/xhs.glb',
+   content:{period:'2025.10–2025.12',title:'策略运营实习生',org:'小红书 · 上海',
+    bullets:['SQL搭建数据看板，构建审核运营指标体系','A/B测试验证审核策略效果','特征因子挖掘推动链路优化'],
+    tags:['SQL','A/B测试','数据看板']}},
+  {name:'Ipsos',icon:'📊',color:'#60a5fa',orbitR:168,size:5,speed:0.004,angle:3.2,glb:'./models/ipsos.glb',
+   content:{period:'2025.09–2025.10',title:'定量研究实习生',org:'益普索 Ipsos · 上海',
+    bullets:['定量分析品牌广告投放效果','SPSS+A/B测试进行效果归因','参与《2025年亿滋企业洞察商业分析》报告'],
+    tags:['SPSS','定量分析','消费者洞察']}},
+  {name:'Cryptoracle',icon:'₿',color:'#fbbf24',orbitR:208,size:5,speed:0.003,angle:0.9,glb:'./models/crypto.glb',
+   content:{period:'2025.06–2025.07',title:'数据分析实习生',org:'Cryptoracle · 马来西亚',
+    bullets:['SQL提取清洗金融市场交易数据','PCA降维+时间序列预测识别异常交易','Python聚类分析构建用户画像'],
+    tags:['Python','SQL','PCA','时间序列']}},
+  {name:'科大讯飞',icon:'🤖',color:'#34d399',orbitR:248,size:5.5,speed:0.0025,angle:4.1,glb:'./models/iflytek.glb',
+   content:{period:'2023.07–2023.10',title:'研究分析实习生',org:'科大讯飞 知识图谱部 · 苏州',
+    bullets:['设计司法案件文本分析多层次标签体系','Python+NLP实现案件自动分类','机器识别准确率提升至98%'],
+    tags:['Python','NLP','知识图谱','文本分类']}},
+  {name:'德勤',icon:'🏢',color:'#a78bfa',orbitR:288,size:5,speed:0.002,angle:2.4,glb:'./models/deloitte.glb',
+   content:{period:'2022.05–2022.08',title:'风险咨询实习生',org:'德勤 Deloitte · 重庆',
+    bullets:['月度业务数据核算识别业务问题','撰写风险评估报告与内控优化方案','异常检测算法风险预警准确率93%'],
+    tags:['风险量化','异常检测','统计分析']}},
+  {name:'TCM-GPT',icon:'🌿',color:'#f472b6',orbitR:328,size:4.8,speed:0.0018,angle:5.0,glb:'./models/tcm.glb',
+   content:{period:'2023.09–2024.06',title:'中医药大模型项目',org:'上海中医药大学 × 百度',
+    bullets:['参与文心一言架构中医药语言模型构建','百万字中医语料清洗与结构化转化','提取症状/方剂/经络实体关系'],
+    tags:['Python','NLP','大模型','知识图谱']}},
+  {name:'技能星座',icon:'⚡',color:'#fde68a',orbitR:378,size:7,speed:0.0013,angle:1.5,glb:'./models/skills.glb',isSaturn:true,
+   content:{period:'Skills',title:'技能星座',org:'数据科学技能树',
+    skills:[{n:'Python',p:92},{n:'SQL',p:90},{n:'R/Matlab',p:82},{n:'SPSS',p:88},{n:'GIS',p:78},{n:'机器学习',p:80},{n:'NLP',p:78},{n:'英语雅思8.0',p:95}]}}
 ];
 
-const CONTACT = {
-  icon:'🌟', period:'Contact', title:'张丹逸 · Danyi Zhang', org:'UCL 环境数据建模 硕士',
-  bullets:['📧 13359485898@163.com','📱 (+86) 133-5948-5898','💬 微信：zdy020115','🐙 github.com/DanyiZhang2002'],
-  tags:['Data Science','Environmental Modeling','NLP','金融量化']
-};
+var CONTACT = {icon:'🌟',period:'联系方式',title:'张丹逸 · Danyi Zhang',org:'UCL 环境数据建模 硕士在读',
+  bullets:['📧 13359485898@163.com','📱 133-5948-5898','💬 微信：zdy020115','🐙 github.com/DanyiZhang2002'],
+  tags:['Data Science','Environmental Modeling','NLP']};
 
-// ═══════════════════════════════════════════
-// THREE.JS SETUP
-// ═══════════════════════════════════════════
-const W = window.innerWidth, H = window.innerHeight;
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
-renderer.setSize(W, H);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setClearColor(0x050010, 1);
-document.body.appendChild(renderer.domElement);
+// ─── STATE ───
+var canvas = document.getElementById('c');
+var renderer = new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setClearColor(0x050010,1);
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(58, W/H, 0.1, 8000);
-camera.position.set(0, 0, 820);
-camera.lookAt(0, 0, 0);
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(50,window.innerWidth/window.innerHeight,1,2000);
+camera.position.set(0,120,450);
+camera.lookAt(0,0,0);
 
 // Lights
-const ambLight = new THREE.AmbientLight(0x221133, 1.2);
-scene.add(ambLight);
-const sunLight = new THREE.PointLight(0xffffff, 3.5, 1200);
-scene.add(sunLight);
-const fillLight = new THREE.PointLight(0x4433aa, 0.8, 800);
-fillLight.position.set(-300, 200, 100);
-scene.add(fillLight);
+var ambient = new THREE.AmbientLight(0x443366,0.6);
+scene.add(ambient);
+var pointLight = new THREE.PointLight(0xffeedd,1.8,800);
+pointLight.position.set(0,0,0);
+scene.add(pointLight);
+var dirLight = new THREE.DirectionalLight(0xc4b5fd,0.4);
+dirLight.position.set(200,300,100);
+scene.add(dirLight);
 
-// ── Galaxy Group (tilted) ──
-const galaxyGroup = new THREE.Group();
-galaxyGroup.rotation.x = -Math.PI * 0.27;  // 倾斜，俯视椭圆效果
-galaxyGroup.rotation.z = Math.PI * 0.04;
+// ─── GALAXY GROUP (tilted) ───
+var galaxyGroup = new THREE.Group();
+galaxyGroup.rotation.x = THREE.MathUtils.degToRad(-50);
 scene.add(galaxyGroup);
 
-// ── Background Stars ──
-(function(){
-  const geo = new THREE.BufferGeometry();
-  const n = 3000;
-  const pos = new Float32Array(n*3);
-  const col = new Float32Array(n*3);
-  for(let i=0;i<n;i++){
-    const r = 1200 + Math.random()*1200;
-    const theta = Math.random()*Math.PI*2;
-    const phi = Math.acos(2*Math.random()-1);
-    pos[i*3]   = r*Math.sin(phi)*Math.cos(theta);
-    pos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
-    pos[i*3+2] = r*Math.cos(phi);
-    const br = 0.6+Math.random()*0.4;
-    col[i*3]=br; col[i*3+1]=br; col[i*3+2]=br+0.1;
+// ─── CENTRAL STAR ───
+var starCore = new THREE.Mesh(
+  new THREE.SphereGeometry(16,64,64),
+  new THREE.MeshBasicMaterial({color:0xffffff})
+);
+galaxyGroup.add(starCore);
+
+// Glow layers
+var glowSizes = [28,42,60,90];
+var glowAlphas = [0.18,0.10,0.06,0.03];
+var glowMeshes = [];
+for(var g=0;g<4;g++){
+  var glowGeo = new THREE.SphereGeometry(glowSizes[g],32,32);
+  var glowMat = new THREE.MeshBasicMaterial({
+    color:0xeeddff,transparent:true,opacity:glowAlphas[g],
+    blending:THREE.AdditiveBlending,depthWrite:false
+  });
+  var glowMesh = new THREE.Mesh(glowGeo,glowMat);
+  galaxyGroup.add(glowMesh);
+  glowMeshes.push(glowMesh);
+}
+
+// ─── SPIRAL ARMS ───
+function createSpiralArm(armIndex){
+  var count = 8000;
+  var positions = new Float32Array(count*3);
+  var offset = armIndex * Math.PI;
+  for(var i=0;i<count;i++){
+    var t = (i/count)*4;
+    var r = 20 + t*95 + (Math.random()-0.5)*30;
+    var theta = t*2.8 + offset + (Math.random()-0.5)*0.4;
+    var y = (Math.random()-0.5)*6*(1+t*0.3);
+    positions[i*3]   = r*Math.cos(theta);
+    positions[i*3+1] = y;
+    positions[i*3+2] = r*Math.sin(theta);
   }
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
-  const mat = new THREE.PointsMaterial({size:1.5,vertexColors:true,sizeAttenuation:true});
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  var mat = new THREE.PointsMaterial({
+    color:0xffffff,size:3.0,transparent:true,opacity:0.6,
+    blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+  });
+  var pts = new THREE.Points(geo,mat);
+  galaxyGroup.add(pts);
+  return pts;
+}
+var arm1 = createSpiralArm(0);
+var arm2 = createSpiralArm(1);
+
+// ─── BACKGROUND STARS ───
+(function(){
+  var count = 3000;
+  var positions = new Float32Array(count*3);
+  for(var i=0;i<count;i++){
+    positions[i*3]   = (Math.random()-0.5)*1800;
+    positions[i*3+1] = (Math.random()-0.5)*1800;
+    positions[i*3+2] = (Math.random()-0.5)*1800;
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  var mat = new THREE.PointsMaterial({
+    color:0xffffff,size:1.2,transparent:true,opacity:0.4,
+    blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+  });
   scene.add(new THREE.Points(geo,mat));
 })();
 
-// ── Spiral Arms ──
-function makeSpiralArm(offset, n, c1hex, c2hex){
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(n*3);
-  const col = new Float32Array(n*3);
-  const c1 = new THREE.Color(c1hex);
-  const c2 = new THREE.Color(c2hex);
-  for(let i=0;i<n;i++){
-    const t = i/n;
-    const angle = t * Math.PI * 4.2 + offset;
-    const r = 15 + t*400;
-    const spread = (Math.random()-0.5)*(8+t*35);
-    const heightSpread = (Math.random()-0.5)*(4+t*10);
-    pos[i*3]   = Math.cos(angle)*(r+spread);
-    pos[i*3+1] = heightSpread;
-    pos[i*3+2] = Math.sin(angle)*(r+spread);
-    const c = new THREE.Color().lerpColors(c1,c2,t);
-    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
-  }
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
-  const mat = new THREE.PointsMaterial({
-    size:2.8, sizeAttenuation:true, vertexColors:true,
-    transparent:true, opacity:0.92,
-    blending:THREE.AdditiveBlending, depthWrite:false
-  });
-  return new THREE.Points(geo,mat);
-}
-galaxyGroup.add(makeSpiralArm(0,       8000, '#ffffff', '#8899ff'));
-galaxyGroup.add(makeSpiralArm(Math.PI, 8000, '#ffffff', '#9988ee'));
-
-// ── Dense Core Particles ──
-(function(){
-  const geo = new THREE.BufferGeometry();
-  const n = 2000;
-  const pos = new Float32Array(n*3);
-  for(let i=0;i<n;i++){
-    const r = Math.random()*40;
-    const a = Math.random()*Math.PI*2;
-    pos[i*3]=Math.cos(a)*r+(Math.random()-0.5)*8;
-    pos[i*3+1]=(Math.random()-0.5)*6;
-    pos[i*3+2]=Math.sin(a)*r+(Math.random()-0.5)*8;
-  }
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  const mat = new THREE.PointsMaterial({
-    size:2.2, color:0xffffff, transparent:true, opacity:0.9,
-    blending:THREE.AdditiveBlending, depthWrite:false
-  });
-  galaxyGroup.add(new THREE.Points(geo,mat));
-})();
-
-// ── Star Core ──
-const tLoader = new THREE.TextureLoader();
-const coreMat = new THREE.MeshBasicMaterial({color:0xffffff});
-const coreMesh = new THREE.Mesh(new THREE.SphereGeometry(14,32,32), coreMat);
-coreMesh.userData = {isCore:true};
-galaxyGroup.add(coreMesh);
-
-// Glow layers
-[[22,0xffffff,0.45],[36,0xbbccff,0.22],[55,0x8899dd,0.12],[80,0x4455aa,0.06]].forEach(([s,c,o])=>{
-  const m = new THREE.Mesh(
-    new THREE.SphereGeometry(s,16,16),
-    new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,blending:THREE.AdditiveBlending,depthWrite:false})
-  );
-  galaxyGroup.add(m);
+// ─── ORBIT RINGS ───
+PLANETS.forEach(function(p){
+  var curve = new THREE.EllipseCurve(0,0,p.orbitR,p.orbitR,0,Math.PI*2,false,0);
+  var pts = curve.getPoints(128);
+  var geo = new THREE.BufferGeometry().setFromPoints(pts);
+  var mat = new THREE.LineBasicMaterial({color:0xc4b5fd,transparent:true,opacity:0.06});
+  var ring = new THREE.Line(geo,mat);
+  ring.rotation.x = Math.PI/2;
+  galaxyGroup.add(ring);
 });
 
-// ── Orbit Lines ──
-function makeOrbit(r){
-  const pts = [];
-  for(let i=0;i<=128;i++){
-    const a=i/128*Math.PI*2;
-    pts.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r));
-  }
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  return new THREE.LineLoop(geo, new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.1}));
-}
+// ─── PLANETS ───
+var planetMeshes = [];
+var planetWrappers = [];
+var loader = new THREE.GLTFLoader();
+var loadedCount = 0;
 
-// ── Planets ──
-const planetMeshes = [];
-const angles = [];
-const labelEls = [];
-let discovered = 0;
-const discoveredSet = new Set();
+var fallbackColors = [0xc4b5fd,0xfb7185,0x60a5fa,0xfbbf24,0x34d399,0xa78bfa,0xf472b6,0xfde68a];
 
-// Load textures (with fallback)
-const earthTex = tLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
-const moonTex  = tLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg');
-
-PLANETS.forEach((p,i)=>{
-  angles.push(p.startAngle);
-  galaxyGroup.add(makeOrbit(p.orbitR));
-
-  let mat;
-  if(p.useTexture==='earth'){
-    mat = new THREE.MeshPhongMaterial({map:earthTex, shininess:60, specular:new THREE.Color(0x333333)});
-  } else if(p.useTexture==='moon'){
-    mat = new THREE.MeshPhongMaterial({map:moonTex, shininess:20});
-  } else {
-    mat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(p.color),
-      emissive: new THREE.Color(p.emissive),
-      shininess: 80,
-      specular: new THREE.Color(0x444444)
-    });
-  }
-
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(p.size,32,32), mat);
-  mesh.userData = {planetIdx:i};
-
-  // Atmosphere glow
-  const atmMat = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(p.color),
-    transparent:true, opacity:0.18,
-    blending:THREE.AdditiveBlending, depthWrite:false
-  });
-  const atmMesh = new THREE.Mesh(new THREE.SphereGeometry(p.size*1.35,16,16), atmMat);
-  mesh.add(atmMesh);
-
-  // Saturn ring
-  if(p.isSaturn){
-    [[p.size*1.6, p.size*2.1, 0xfde68a, 0.5],[p.size*2.2, p.size*2.9, 0xfbbf24, 0.25]].forEach(([ri,ro,rc,op])=>{
-      const rGeo = new THREE.RingGeometry(ri,ro,64);
-      const rMat = new THREE.MeshBasicMaterial({color:rc,transparent:true,opacity:op,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
-      const ring = new THREE.Mesh(rGeo,rMat);
-      ring.rotation.x = Math.PI*0.5;
-      mesh.add(ring);
-    });
-  }
-
-  const group = new THREE.Group();
-  group.add(mesh);
-  galaxyGroup.add(group);
-  planetMeshes.push({mesh, group, data:p});
-
-  // HTML Label
-  const lbl = document.createElement('div');
-  lbl.className = 'planet-label';
-  lbl.textContent = p.name;
-  document.body.appendChild(lbl);
-  labelEls.push(lbl);
-});
-
-// ── Raycaster ──
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let hovered = null;
-
-function getAllMeshes(){
-  const arr = [coreMesh];
-  planetMeshes.forEach(p=>arr.push(p.mesh));
-  return arr;
-}
-
-renderer.domElement.addEventListener('mousemove', e=>{
-  mouse.x = (e.clientX/window.innerWidth)*2-1;
-  mouse.y = -(e.clientY/window.innerHeight)*2+1;
-  raycaster.setFromCamera(mouse,camera);
-  const hits = raycaster.intersectObjects(getAllMeshes());
-  document.body.style.cursor = hits.length ? 'pointer' : 'default';
-});
-
-renderer.domElement.addEventListener('click', e=>{
-  mouse.x = (e.clientX/window.innerWidth)*2-1;
-  mouse.y = -(e.clientY/window.innerHeight)*2+1;
-  raycaster.setFromCamera(mouse,camera);
-  const hits = raycaster.intersectObjects(getAllMeshes(),true);
-  if(!hits.length) return;
-  const obj = hits[0].object;
-  if(obj===coreMesh || obj.parent===coreMesh){
-    showPanel(CONTACT,'#fbbf24');
-  } else {
-    // walk up to find planetIdx
-    let cur = obj;
-    while(cur && cur.userData.planetIdx===undefined) cur=cur.parent;
-    if(cur && cur.userData.planetIdx!==undefined){
-      const idx = cur.userData.planetIdx;
-      const p = PLANETS[idx];
-      if(!discoveredSet.has(idx)){
-        discoveredSet.add(idx);
-        discovered++;
-        document.getElementById('disc').textContent=discovered;
+function loadGLB(path, size, colorHex, onDone){
+  loader.load(path, function(gltf){
+    var model = gltf.scene;
+    // Calculate bounding box to normalize
+    var box = new THREE.Box3().setFromObject(model);
+    var bSize = new THREE.Vector3();
+    box.getSize(bSize);
+    var maxDim = Math.max(bSize.x,bSize.y,bSize.z);
+    if(maxDim > 0) model.scale.setScalar(size*2/maxDim);
+    model.traverse(function(child){
+      if(child.isMesh){
+        child.castShadow = false;
       }
-      showPanel(p.content, p.color);
+    });
+    onDone(model);
+  }, null, function(){
+    var mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(size,32,32),
+      new THREE.MeshPhongMaterial({color:colorHex,shininess:80,emissive:colorHex,emissiveIntensity:0.1})
+    );
+    onDone(mesh);
+  });
+}
+
+PLANETS.forEach(function(p,i){
+  // Wrapper group for orbit
+  var wrapper = new THREE.Group();
+  galaxyGroup.add(wrapper);
+  planetWrappers.push(wrapper);
+
+  // Load GLB
+  loadGLB(p.glb, p.size, fallbackColors[i], function(model){
+    model.position.set(p.orbitR,0,0);
+    wrapper.add(model);
+
+    // Saturn ring for skills
+    if(p.isSaturn){
+      var torusGeo = new THREE.TorusGeometry(p.size*1.6, p.size*0.25, 2, 80);
+      var torusMat = new THREE.MeshPhongMaterial({
+        color:0xfde68a,emissive:0xfde68a,emissiveIntensity:0.2,
+        transparent:true,opacity:0.55,side:THREE.DoubleSide
+      });
+      var torus = new THREE.Mesh(torusGeo,torusMat);
+      torus.rotation.x = Math.PI*0.45;
+      torus.position.copy(model.position);
+      wrapper.add(torus);
+      // Store torus reference for orbiting
+      wrapper.userData.saturnRing = torus;
+    }
+
+    // Store reference
+    planetMeshes[i] = model;
+
+    // Track loading
+    loadedCount++;
+    var pct = Math.round(loadedCount/8*100);
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressText').textContent = loadedCount+' / 8 planets loaded';
+
+    if(loadedCount === 8){
+      setTimeout(function(){
+        document.getElementById('loading').classList.add('done');
+        document.getElementById('bottom-nav').classList.remove('hidden');
+      },600);
+    }
+  });
+
+  // Set initial angle
+  wrapper.rotation.y = p.angle;
+});
+
+// ─── RAYCASTING ───
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+var discovered = new Set();
+var hoveredIdx = -1;
+
+function getPlanetFromIntersect(obj){
+  var cur = obj;
+  while(cur){
+    for(var i=0;i<planetMeshes.length;i++){
+      if(planetMeshes[i] && (planetMeshes[i] === cur || isDescendant(planetMeshes[i],cur))){
+        return i;
+      }
+    }
+    cur = cur.parent;
+  }
+  return -1;
+}
+
+function isDescendant(parent,child){
+  var cur = child;
+  while(cur){
+    if(cur === parent) return true;
+    cur = cur.parent;
+  }
+  return false;
+}
+
+canvas.addEventListener('click',function(e){
+  mouse.x = (e.clientX/window.innerWidth)*2-1;
+  mouse.y = -(e.clientY/window.innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  var intersects = raycaster.intersectObjects(galaxyGroup.children,true);
+  for(var k=0;k<intersects.length;k++){
+    var idx = getPlanetFromIntersect(intersects[k].object);
+    if(idx >= 0){
+      openPanel(idx);
+      return;
     }
   }
 });
 
-// ── Panel ──
-function showPanel(content, color){
-  const panel = document.getElementById('panel');
-  const body = document.getElementById('panel-body');
-  panel.style.setProperty('--pc', color||'#c4b5fd');
-  let html = '<div class="p-icon">'+(content.icon||'✦')+'</div>'+
-    '<div class="p-period">'+(content.period||'')+'</div>'+
-    '<div class="p-title">'+content.title+'</div>'+
-    '<div class="p-org">'+content.org+'</div>';
-  if(content.bullets){
-    html += '<ul class="p-bullets">'+content.bullets.map(function(b){return '<li>'+b+'</li>'}).join('')+'</ul>';
+canvas.addEventListener('mousemove',function(e){
+  mouse.x = (e.clientX/window.innerWidth)*2-1;
+  mouse.y = -(e.clientY/window.innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  var intersects = raycaster.intersectObjects(galaxyGroup.children,true);
+  var found = -1;
+  for(var k=0;k<intersects.length;k++){
+    var idx = getPlanetFromIntersect(intersects[k].object);
+    if(idx >= 0){found = idx; break;}
   }
-  if(content.tags){
-    html += '<div class="p-tags">'+content.tags.map(function(t){return '<span class="p-tag">'+t+'</span>'}).join('')+'</div>';
+  if(found !== hoveredIdx){
+    hoveredIdx = found;
+    canvas.style.cursor = found >= 0 ? 'pointer' : 'default';
   }
-  if(content.skills){
-    html += '<div class="p-divider"></div><div class="p-sub">熟练度</div>';
-    content.skills.forEach(function(s){
-      html += '<div class="sk-row"><span class="sk-lbl">'+s.name+'</span><div class="sk-bar"><div class="sk-fill" style="width:0%" data-pct="'+s.pct+'%"></div></div></div>';
+});
+
+// ─── PANEL ───
+var panel = document.getElementById('panel');
+var panelContent = document.getElementById('panelContent');
+var currentPanelIdx = -1;
+
+function openPanel(idx){
+  currentPanelIdx = idx;
+  var data, isContact = (idx === 8);
+
+  if(isContact){
+    data = CONTACT;
+  } else {
+    data = PLANETS[idx].content;
+    discovered.add(idx);
+    document.getElementById('counter').textContent = '✦ '+discovered.size+'/8 worlds discovered';
+    document.getElementById('counter').classList.add('glow');
+    setTimeout(function(){document.getElementById('counter').classList.remove('glow');},1500);
+  }
+
+  var html = '<div class="panel-icon">'+data.icon+'</div>';
+  html += '<div class="panel-period">'+data.period+'</div>';
+  html += '<div class="panel-title">'+data.title+'</div>';
+  html += '<div class="panel-org">'+data.org+'</div>';
+
+  if(data.bullets){
+    html += '<ul class="panel-bullets contact-links">';
+    data.bullets.forEach(function(b){
+      html += '<li>'+b+'</li>';
     });
+    html += '</ul>';
   }
-  body.innerHTML = html;
+
+  if(data.skills){
+    html += '<div class="skills-grid">';
+    var colors = ['#c4b5fd','#60a5fa','#fb7185','#fbbf24','#34d399','#a78bfa','#f472b6','#fde68a'];
+    data.skills.forEach(function(s,si){
+      html += '<div class="skill-item">';
+      html += '<span class="skill-name">'+s.n+'</span>';
+      html += '<div class="skill-bar"><div class="skill-fill" style="width:0%;background:'+colors[si%8]+';" data-pct="'+s.p+'"></div></div>';
+      html += '<span class="skill-pct">'+s.p+'%</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  if(data.tags){
+    html += '<div class="panel-tags" style="margin-top:16px;">';
+    data.tags.forEach(function(t){
+      html += '<span class="panel-tag">'+t+'</span>';
+    });
+    html += '</div>';
+  }
+
+  panelContent.innerHTML = html;
   panel.classList.add('open');
-  // animate skill bars
-  setTimeout(function(){
-    document.querySelectorAll('.sk-fill').forEach(function(el){
-      el.style.width = el.dataset.pct;
-    });
-  },50);
+
+  // Animate skill bars
+  if(data.skills){
+    setTimeout(function(){
+      var fills = panelContent.querySelectorAll('.skill-fill');
+      fills.forEach(function(f){
+        f.style.width = f.getAttribute('data-pct')+'%';
+      });
+    },100);
+  }
+
+  // Update nav active
+  var btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(function(b){b.classList.remove('active');});
+  if(idx < btns.length) btns[idx].classList.add('active');
 }
 
 function closePanel(){
-  document.getElementById('panel').classList.remove('open');
+  panel.classList.remove('open');
+  currentPanelIdx = -1;
+  var btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(function(b){b.classList.remove('active');});
 }
 
-function showTab(tab){
-  if(tab==='contact') showPanel(CONTACT,'#c4b5fd');
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===(tab==='resume'?0:1));});
-}
+document.getElementById('panelClose').addEventListener('click',closePanel);
 
-// ── Animation ──
-const clock = new THREE.Clock();
-const tmpVec = new THREE.Vector3();
+// Nav buttons
+document.querySelectorAll('.nav-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    openPanel(parseInt(this.getAttribute('data-idx')));
+  });
+});
+
+// ─── CAMERA CONTROLS (simple orbit) ───
+var camTheta = 0, camPhi = Math.PI*0.38, camDist = 450;
+var targetTheta = camTheta, targetPhi = camPhi, targetDist = camDist;
+var isDragging = false, prevX = 0, prevY = 0;
+
+canvas.addEventListener('mousedown',function(e){
+  if(hoveredIdx >= 0) return;
+  isDragging = true; prevX = e.clientX; prevY = e.clientY;
+});
+window.addEventListener('mousemove',function(e){
+  if(!isDragging) return;
+  var dx = e.clientX - prevX, dy = e.clientY - prevY;
+  targetTheta -= dx * 0.003;
+  targetPhi = Math.max(0.1, Math.min(Math.PI*0.48, targetPhi - dy*0.003));
+  prevX = e.clientX; prevY = e.clientY;
+});
+window.addEventListener('mouseup',function(){isDragging=false;});
+canvas.addEventListener('wheel',function(e){
+  e.preventDefault();
+  targetDist = Math.max(200, Math.min(800, targetDist + e.deltaY*0.5));
+},{passive:false});
+
+// Touch support
+var touchDist0 = 0;
+canvas.addEventListener('touchstart',function(e){
+  if(e.touches.length===1){
+    isDragging=true; prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;
+  } else if(e.touches.length===2){
+    var dx=e.touches[0].clientX-e.touches[1].clientX;
+    var dy=e.touches[0].clientY-e.touches[1].clientY;
+    touchDist0=Math.sqrt(dx*dx+dy*dy);
+  }
+},{passive:true});
+canvas.addEventListener('touchmove',function(e){
+  e.preventDefault();
+  if(e.touches.length===1 && isDragging){
+    var dx=e.touches[0].clientX-prevX, dy=e.touches[0].clientY-prevY;
+    targetTheta -= dx*0.004;
+    targetPhi = Math.max(0.1,Math.min(Math.PI*0.48, targetPhi-dy*0.004));
+    prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;
+  } else if(e.touches.length===2){
+    var dx=e.touches[0].clientX-e.touches[1].clientX;
+    var dy=e.touches[0].clientY-e.touches[1].clientY;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    targetDist = Math.max(200,Math.min(800, targetDist-(dist-touchDist0)*1.5));
+    touchDist0=dist;
+  }
+},{passive:false});
+canvas.addEventListener('touchend',function(){isDragging=false;},{passive:true});
+
+// ─── ANIMATION LOOP ───
+var clock = new THREE.Clock();
 
 function animate(){
   requestAnimationFrame(animate);
-  const dt = clock.getDelta();
+  var dt = clock.getDelta();
+  var time = clock.getElapsedTime();
 
-  // Rotate galaxy slowly
-  galaxyGroup.rotation.y += 0.0004;
+  // Camera smooth
+  camTheta += (targetTheta - camTheta)*0.06;
+  camPhi += (targetPhi - camPhi)*0.06;
+  camDist += (targetDist - camDist)*0.06;
 
-  // Orbit planets
-  PLANETS.forEach(function(p,i){
-    angles[i] += p.speed;
-    const x = Math.cos(angles[i])*p.orbitR;
-    const z = Math.sin(angles[i])*p.orbitR;
-    planetMeshes[i].group.position.set(x,0,z);
-    planetMeshes[i].mesh.rotation.y += 0.005;
+  camera.position.x = camDist * Math.sin(camPhi) * Math.sin(camTheta);
+  camera.position.y = camDist * Math.cos(camPhi);
+  camera.position.z = camDist * Math.sin(camPhi) * Math.cos(camTheta);
+  camera.lookAt(0,0,0);
 
-    // Update label position
-    planetMeshes[i].mesh.getWorldPosition(tmpVec);
-    tmpVec.project(camera);
-    const sx = (tmpVec.x*0.5+0.5)*window.innerWidth;
-    const sy = (-tmpVec.y*0.5+0.5)*window.innerHeight;
-    const lbl = labelEls[i];
-    lbl.style.left = sx+'px';
-    lbl.style.top  = (sy - planetMeshes[i].data.size*18 - 8)+'px';
-    // Hide if behind
-    lbl.style.opacity = tmpVec.z < 1 ? '1' : '0';
+  // Star pulse
+  var pulse = 1.0 + Math.sin(time*1.5)*0.04;
+  starCore.scale.setScalar(pulse);
+  glowMeshes.forEach(function(g,i){
+    g.scale.setScalar(1.0 + Math.sin(time*(1.2-i*0.15))*0.05*(i+1));
   });
+
+  // Planet orbits
+  PLANETS.forEach(function(p,i){
+    if(planetMeshes[i]){
+      planetWrappers[i].rotation.y += p.speed;
+      planetMeshes[i].rotation.y += 0.008;
+
+      // Saturn ring follows
+      if(planetWrappers[i].userData.saturnRing){
+        var ring = planetWrappers[i].userData.saturnRing;
+        ring.rotation.y = planetMeshes[i].rotation.y;
+      }
+    }
+  });
+
+  // Spiral arms slow rotation
+  arm1.rotation.y += 0.0003;
+  arm2.rotation.y += 0.0003;
 
   renderer.render(scene,camera);
 }
 animate();
 
-// ── Resize ──
+// ─── RESIZE ───
 window.addEventListener('resize',function(){
-  const w=window.innerWidth, h=window.innerHeight;
-  camera.aspect=w/h;
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(w,h);
+  renderer.setSize(window.innerWidth,window.innerHeight);
 });
+
+// ─── KEYBOARD ───
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closePanel();
+});
+
+// Timeout fallback for loading
+setTimeout(function(){
+  if(loadedCount < 8){
+    document.getElementById('loading').classList.add('done');
+    document.getElementById('bottom-nav').classList.remove('hidden');
+    document.getElementById('progressText').textContent = 'Showing with fallback spheres';
+  }
+},12000);
+
+})();
 </script>
 </body>
 </html>
