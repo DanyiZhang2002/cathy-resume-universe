@@ -3,1061 +3,639 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>简历宇宙 - Cathy的星际档案</title>
+<title>张丹逸 · 简历宇宙</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  :root {
-    --star-color: #e8e8ff;
-    --accent: #a78bfa;
-    --accent2: #60a5fa;
-    --accent3: #34d399;
-    --accent4: #f472b6;
-    --accent5: #fbbf24;
-    --glow: rgba(167, 139, 250, 0.4);
-  }
-
-  body {
-    background: #020617;
-    color: #e2e8f0;
-    font-family: 'Georgia', serif;
-    overflow-x: hidden;
-    cursor: default;
-  }
-
-  /* ======== 星空背景 ======== */
-  #starfield {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    overflow: hidden;
-  }
-
-  .star {
-    position: absolute;
-    border-radius: 50%;
-    background: white;
-    animation: twinkle var(--dur) ease-in-out infinite alternate;
-  }
-
-  @keyframes twinkle {
-    from { opacity: var(--min-op); transform: scale(1); }
-    to { opacity: var(--max-op); transform: scale(1.3); }
-  }
-
-  /* ======== 流星 ======== */
-  .meteor {
-    position: absolute;
-    width: 2px;
-    height: 80px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), white);
-    animation: shoot var(--speed) linear infinite;
-    opacity: 0;
-    transform: rotate(-45deg);
-  }
-
-  @keyframes shoot {
-    0% { transform: translateX(0) translateY(-100px) rotate(-45deg); opacity: 1; }
-    100% { transform: translateX(300px) translateY(600px) rotate(-45deg); opacity: 0; }
-  }
-
-  /* ======== 布局 ======== */
-  #app {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ======== Hero 区域 ======== */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 80px 20px 60px;
-    position: relative;
-  }
-
-  .hero-orbit-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(167, 139, 250, 0.15);
-    animation: spin-slow linear infinite;
-  }
-
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .orbit-1 { width: 320px; height: 320px; animation-duration: 30s; top: 50%; left: 50%; margin: -160px 0 0 -160px; }
-  .orbit-2 { width: 480px; height: 480px; animation-duration: 50s; animation-direction: reverse; top: 50%; left: 50%; margin: -240px 0 0 -240px; }
-  .orbit-3 { width: 660px; height: 660px; animation-duration: 80s; top: 50%; left: 50%; margin: -330px 0 0 -330px; }
-
-  .orbit-dot {
-    position: absolute;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    top: 50%; margin-top: -4px;
-    left: 0; margin-left: -4px;
-  }
-
-  .avatar-container {
-    position: relative;
-    width: 140px; height: 140px;
-    margin: 0 auto 32px;
-  }
-
-  .avatar-glow {
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(167,139,250,0.3) 0%, transparent 70%);
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.1); opacity: 1; }
-  }
-
-  .avatar {
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    border: 3px solid var(--accent);
-    background: linear-gradient(135deg, #1e1b4b, #312e81);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 56px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .avatar::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: conic-gradient(transparent, rgba(167,139,250,0.3), transparent 30%);
-    animation: spin-slow 4s linear infinite;
-  }
-
-  .hero-name {
-    font-size: 3.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #e2e8f0 0%, var(--accent) 50%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
-  }
-
-  .hero-title {
-    font-size: 1.1rem;
-    color: var(--accent);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    opacity: 0.9;
-  }
-
-  .hero-desc {
-    max-width: 520px;
-    font-size: 1rem;
-    line-height: 1.8;
-    color: rgba(226,232,240,0.7);
-    margin-bottom: 40px;
-  }
-
-  .hero-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    max-width: 600px;
-    margin-bottom: 48px;
-  }
-
-  .tag {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    border: 1px solid;
-    transition: all 0.3s;
-  }
-
-  .tag:hover { transform: translateY(-2px); filter: brightness(1.2); }
-
-  .tag-purple { color: var(--accent); border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
-  .tag-blue   { color: var(--accent2); border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.08); }
-  .tag-green  { color: var(--accent3); border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.08); }
-  .tag-pink   { color: var(--accent4); border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.08); }
-  .tag-gold   { color: var(--accent5); border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.08); }
-
-  .scroll-hint {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: rgba(226,232,240,0.4);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    animation: bounce 2s ease-in-out infinite;
-  }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(6px); }
-  }
-
-  .scroll-arrow {
-    width: 1px; height: 40px;
-    background: linear-gradient(to bottom, transparent, rgba(167,139,250,0.6));
-  }
-
-  /* ======== 宇宙导航 ======== */
-  .section-nav {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    padding: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(2,6,23,0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(167,139,250,0.1);
-  }
-
-  .nav-btn {
-    padding: 8px 20px;
-    border: none;
-    background: none;
-    color: rgba(226,232,240,0.5);
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-  }
-
-  .nav-btn::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 50%; right: 50%;
-    height: 2px;
-    background: var(--accent);
-    transition: all 0.3s;
-  }
-
-  .nav-btn:hover { color: var(--accent); }
-  .nav-btn:hover::after { left: 0; right: 0; }
-
-  /* ======== 星系区块 ======== */
-  .galaxy-section {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 100px 40px;
-    position: relative;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 60px;
-  }
-
-  .section-planet {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  .section-planet::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1px solid;
-    opacity: 0.3;
-  }
-
-  .planet-edu { background: radial-gradient(135deg, #1e1b4b, #4c1d95); }
-  .planet-edu::after { border-color: var(--accent); }
-  .planet-exp { background: radial-gradient(135deg, #0c1a3a, #1e40af); }
-  .planet-exp::after { border-color: var(--accent2); }
-  .planet-skill { background: radial-gradient(135deg, #052e16, #065f46); }
-  .planet-skill::after { border-color: var(--accent3); }
-  .planet-proj { background: radial-gradient(135deg, #3b0764, #7c3aed); }
-  .planet-proj::after { border-color: var(--accent4); }
-
-  .section-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-  }
-
-  .section-subtitle {
-    font-size: 0.85rem;
-    color: rgba(226,232,240,0.4);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  /* ======== 时间线 ======== */
-  .timeline {
-    position: relative;
-    padding-left: 40px;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, var(--accent), transparent);
-  }
-
-  .timeline-item {
-    position: relative;
-    margin-bottom: 48px;
-    animation: fadeInUp 0.6s ease forwards;
-    opacity: 0;
-  }
-
-  .timeline-item:nth-child(1) { animation-delay: 0.1s; }
-  .timeline-item:nth-child(2) { animation-delay: 0.2s; }
-  .timeline-item:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .timeline-dot {
-    position: absolute;
-    left: -46px;
-    top: 4px;
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    background: #020617;
-    box-shadow: 0 0 8px var(--accent);
-  }
-
-  .timeline-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 24px 28px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .timeline-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: linear-gradient(to bottom, var(--accent), transparent);
-    border-radius: 0 0 0 16px;
-  }
-
-  .timeline-card:hover {
-    background: rgba(167,139,250,0.06);
-    border-color: rgba(167,139,250,0.25);
-    transform: translateX(4px);
-  }
-
-  .card-period {
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .period-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
-
-  .card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin-bottom: 4px;
-  }
-
-  .card-org {
-    font-size: 0.9rem;
-    color: var(--accent2);
-    margin-bottom: 12px;
-  }
-
-  .card-desc {
-    font-size: 0.875rem;
-    line-height: 1.7;
-    color: rgba(226,232,240,0.65);
-  }
-
-  .card-tags {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-top: 12px;
-  }
-
-  .card-tag {
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-size: 0.72rem;
-    background: rgba(167,139,250,0.1);
-    color: var(--accent);
-    border: 1px solid rgba(167,139,250,0.2);
-  }
-
-  /* ======== 技能星座 ======== */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
-  }
-
-  .skill-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 24px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .skill-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--c);
-    background: rgba(255,255,255,0.05);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  }
-
-  .skill-card::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 60px; height: 60px;
-    border-radius: 0 16px 0 60px;
-    background: linear-gradient(135deg, transparent, var(--c));
-    opacity: 0.05;
-  }
-
-  .skill-icon { font-size: 28px; margin-bottom: 12px; }
-  .skill-name { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
-  .skill-level { font-size: 0.78rem; color: rgba(226,232,240,0.5); margin-bottom: 12px; }
-
-  .skill-bar {
-    height: 3px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .skill-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--c);
-    animation: fillBar 1.5s ease forwards;
-    width: 0;
-  }
-
-  @keyframes fillBar {
-    to { width: var(--pct); }
-  }
-
-  /* ======== 项目星群 ======== */
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
-  }
-
-  .project-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 28px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .project-card::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--pc), transparent);
-    opacity: 0.15;
-  }
-
-  .project-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    border-color: var(--pc);
-  }
-
-  .project-emoji { font-size: 36px; margin-bottom: 16px; }
-  .project-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 10px; color: #f1f5f9; }
-  .project-desc { font-size: 0.85rem; line-height: 1.7; color: rgba(226,232,240,0.6); margin-bottom: 16px; }
-
-  .project-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 0.8rem;
-    color: var(--pc);
-    text-decoration: none;
-    border: 1px solid var(--pc);
-    padding: 6px 14px;
-    border-radius: 10px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-
-  .project-link:hover { opacity: 1; }
-
-  /* ======== 联系卫星 ======== */
-  .contact-section {
-    text-align: center;
-    padding: 100px 40px 140px;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .contact-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .contact-desc {
-    font-size: 1rem;
-    color: rgba(226,232,240,0.6);
-    line-height: 1.8;
-    margin-bottom: 48px;
-  }
-
-  .contact-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-
-  .contact-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 14px 24px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    font-size: 0.9rem;
-    color: rgba(226,232,240,0.8);
-    text-decoration: none;
-    transition: all 0.3s;
-  }
-
-  .contact-item:hover {
-    background: rgba(167,139,250,0.08);
-    border-color: var(--accent);
-    color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .contact-item .ci-icon { font-size: 20px; }
-
-  /* ======== 页脚 ======== */
-  .footer {
-    text-align: center;
-    padding: 30px;
-    color: rgba(226,232,240,0.25);
-    font-size: 0.78rem;
-    letter-spacing: 0.1em;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-
-  /* ======== 浮动粒子 ======== */
-  .floating-particle {
-    position: fixed;
-    pointer-events: none;
-    border-radius: 50%;
-    animation: float var(--ft) ease-in-out infinite alternate;
-    opacity: 0.4;
-  }
-
-  @keyframes float {
-    from { transform: translate(0, 0) rotate(0deg); }
-    to { transform: translate(var(--tx), var(--ty)) rotate(180deg); }
-  }
-
-  /* ======== 分隔线 ======== */
-  .divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(167,139,250,0.2), transparent);
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  /* ======== 响应式 ======== */
-  @media (max-width: 768px) {
-    .hero-name { font-size: 2.2rem; }
-    .orbit-1, .orbit-2, .orbit-3 { display: none; }
-    .galaxy-section { padding: 60px 20px; }
-    .section-nav { gap: 16px; overflow-x: auto; }
-    .nav-btn { font-size: 0.75rem; padding: 6px 12px; }
-  }
+:root {
+  --bg: #03071a;
+  --bg2: #060d2a;
+  --accent: #a78bfa;
+  --accent2: #60a5fa;
+  --accent3: #34d399;
+  --accent4: #f472b6;
+  --accent5: #fbbf24;
+  --text: #e2e8f0;
+  --text-dim: rgba(226,232,240,0.55);
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Georgia',serif;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ── STARFIELD ── */
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite alternate;}
+.meteor{position:absolute;width:1px;height:90px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.9));transform:rotate(-45deg);animation:meteor-fall var(--s,5s) linear infinite;opacity:0;}
+@keyframes twinkle{from{opacity:var(--lo,.1);transform:scale(1);}to{opacity:var(--hi,.7);transform:scale(1.4);}}
+@keyframes meteor-fall{0%{transform:translateX(0) translateY(-120px) rotate(-45deg);opacity:.9;}70%{opacity:.6;}100%{transform:translateX(350px) translateY(700px) rotate(-45deg);opacity:0;}}
+@keyframes orbit{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes pulse-ring{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(1.08);opacity:1;}}
+@keyframes float-up{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes fade-in-up{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes shimmer{0%{background-position:200% center;}100%{background-position:-200% center;}}
+@keyframes spin-cw{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes spin-ccw{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+@keyframes bounce-down{0%,100%{transform:translateY(0);}50%{transform:translateY(7px);}}
+
+/* ── LAYOUT ── */
+#page{position:relative;z-index:1;}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:center;gap:0;
+  background:rgba(3,7,26,.82);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(167,139,250,.12);
+  padding:0 20px;
+}
+.nav-item{
+  padding:16px 22px;
+  font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(226,232,240,.45);
+  cursor:pointer;border:none;background:none;
+  position:relative;transition:color .3s;font-family:inherit;
+}
+.nav-item::after{
+  content:'';position:absolute;bottom:0;left:50%;right:50%;
+  height:2px;background:var(--accent);
+  transition:left .3s,right .3s;
+}
+.nav-item:hover{color:var(--accent);}
+.nav-item:hover::after{left:16px;right:16px;}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px 60px;
+  position:relative;
+}
+/* orbit rings */
+.ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(167,139,250,.12);
+  pointer-events:none;
+}
+.ring-1{width:300px;height:300px;animation:spin-cw 28s linear infinite;}
+.ring-2{width:460px;height:460px;animation:spin-ccw 46s linear infinite;}
+.ring-3{width:640px;height:640px;animation:spin-cw 70s linear infinite;}
+.ring-dot{position:absolute;border-radius:50%;width:7px;height:7px;}
+
+/* avatar */
+.avatar-wrap{position:relative;width:130px;height:130px;margin:0 auto 28px;animation:float-up 4s ease-in-out infinite;}
+.avatar-glow{
+  position:absolute;inset:-14px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,.28) 0%,transparent 68%);
+  animation:pulse-ring 3s ease-in-out infinite;
+}
+.avatar{
+  width:130px;height:130px;border-radius:50%;
+  border:2.5px solid var(--accent);
+  background:linear-gradient(135deg,#1e1b4b,#312e81);
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;overflow:hidden;position:relative;
+}
+.avatar::before{
+  content:'';position:absolute;inset:0;
+  background:conic-gradient(transparent 0deg,rgba(167,139,250,.25) 120deg,transparent 240deg);
+  animation:spin-cw 4s linear infinite;
+}
+
+/* name / title */
+.hero-name{
+  font-size:clamp(2.4rem,6vw,3.8rem);font-weight:700;letter-spacing:.04em;
+  background:linear-gradient(135deg,#f1f5f9 0%,var(--accent) 45%,var(--accent2) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 6s linear infinite;
+  margin-bottom:10px;
+}
+.hero-en{font-size:1rem;color:rgba(226,232,240,.35);letter-spacing:.25em;margin-bottom:6px;}
+.hero-title{font-size:.9rem;color:var(--accent);letter-spacing:.25em;margin-bottom:20px;}
+.hero-desc{
+  max-width:500px;font-size:.92rem;line-height:1.9;
+  color:var(--text-dim);margin-bottom:36px;
+}
+.hero-tags{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:52px;}
+.tag{
+  padding:5px 15px;border-radius:20px;font-size:.76rem;
+  letter-spacing:.06em;border:1px solid;transition:all .3s;
+}
+.tag:hover{transform:translateY(-2px);filter:brightness(1.25);}
+.t1{color:var(--accent);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.07);}
+.t2{color:var(--accent2);border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.07);}
+.t3{color:var(--accent3);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07);}
+.t4{color:var(--accent4);border-color:rgba(244,114,182,.35);background:rgba(244,114,182,.07);}
+.t5{color:var(--accent5);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);}
+
+.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(226,232,240,.28);font-size:.72rem;letter-spacing:.12em;animation:bounce-down 2s ease-in-out infinite;}
+.scroll-line{width:1px;height:38px;background:linear-gradient(to bottom,transparent,rgba(167,139,250,.5));}
+
+/* ── SECTION WRAPPER ── */
+.section{max-width:1060px;margin:0 auto;padding:90px 32px;}
+.sec-label{
+  display:flex;align-items:center;gap:14px;margin-bottom:56px;
+}
+.sec-num{
+  font-size:2.4rem;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  opacity:.25;line-height:1;
+}
+.sec-title-wrap{}
+.sec-title{font-size:1.6rem;font-weight:600;margin-bottom:3px;}
+.sec-sub{font-size:.75rem;color:rgba(226,232,240,.32);letter-spacing:.22em;text-transform:uppercase;}
+
+.sep{height:1px;background:linear-gradient(to right,transparent,rgba(167,139,250,.18),transparent);max-width:1060px;margin:0 auto;}
+
+/* ── GLASS CARD ── */
+.glass{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:18px;
+  backdrop-filter:blur(8px);
+  transition:all .3s;
+}
+.glass:hover{
+  background:rgba(255,255,255,.06);
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:36px;}
+.timeline::before{
+  content:'';position:absolute;left:0;top:6px;bottom:6px;
+  width:1px;
+  background:linear-gradient(to bottom,var(--accent),rgba(167,139,250,.1));
+}
+.tl-item{position:relative;margin-bottom:40px;animation:fade-in-up .6s ease both;}
+.tl-dot{
+  position:absolute;left:-42px;top:5px;
+  width:12px;height:12px;border-radius:50%;
+  border:2px solid var(--accent);background:var(--bg);
+  box-shadow:0 0 8px var(--accent);
+}
+.tl-card{padding:22px 26px;}
+.tl-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;border-radius:3px 0 0 3px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+}
+.tl-period{font-size:.72rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:7px;}
+.tl-period-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.tl-title{font-size:1.1rem;font-weight:600;color:#f1f5f9;margin-bottom:3px;}
+.tl-org{font-size:.87rem;color:var(--accent2);margin-bottom:10px;}
+.tl-desc{font-size:.84rem;line-height:1.75;color:var(--text-dim);}
+.tl-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.tl-tag{padding:2px 10px;border-radius:10px;font-size:.7rem;background:rgba(167,139,250,.1);color:var(--accent);border:1px solid rgba(167,139,250,.2);}
+.tl-tag-blue{background:rgba(96,165,250,.08);color:var(--accent2);border-color:rgba(96,165,250,.2);}
+.tl-tag-green{background:rgba(52,211,153,.08);color:var(--accent3);border-color:rgba(52,211,153,.2);}
+.tl-tag-pink{background:rgba(244,114,182,.08);color:var(--accent4);border-color:rgba(244,114,182,.2);}
+.tl-tag-gold{background:rgba(251,191,36,.08);color:var(--accent5);border-color:rgba(251,191,36,.2);}
+
+/* bullet list inside card */
+.tl-ul{margin:8px 0 0 0;padding-left:16px;font-size:.83rem;line-height:1.8;color:var(--text-dim);}
+.tl-ul li{margin-bottom:4px;}
+
+/* ── SKILLS ── */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.skill-card{padding:22px 24px;}
+.sk-icon{font-size:26px;margin-bottom:10px;}
+.sk-name{font-size:.98rem;font-weight:600;margin-bottom:4px;}
+.sk-desc{font-size:.76rem;color:var(--text-dim);margin-bottom:12px;}
+.sk-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.sk-fill{height:100%;border-radius:2px;background:var(--c);transition:width 1.2s ease;}
+
+/* ── PROJECTS ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
+.proj-card{padding:26px;position:relative;overflow:hidden;}
+.proj-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,var(--pc),transparent);
+  opacity:.14;
+}
+.proj-card:hover{border-color:var(--pc);}
+.proj-emoji{font-size:32px;margin-bottom:14px;}
+.proj-name{font-size:1.08rem;font-weight:600;color:#f1f5f9;margin-bottom:8px;}
+.proj-desc{font-size:.82rem;line-height:1.72;color:var(--text-dim);margin-bottom:14px;}
+
+/* ── CONTACT ── */
+.contact-wrap{max-width:680px;margin:0 auto;padding:90px 32px 130px;text-align:center;}
+.contact-pretitle{font-size:.72rem;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;}
+.contact-title{font-size:2.2rem;font-weight:700;margin-bottom:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.contact-desc{font-size:.9rem;color:var(--text-dim);line-height:1.8;margin-bottom:44px;}
+.contact-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:40px;}
+.ci{
+  display:flex;align-items:center;gap:9px;
+  padding:12px 22px;border-radius:14px;
+  font-size:.85rem;color:rgba(226,232,240,.75);
+  text-decoration:none;
+  transition:all .3s;
+}
+.ci:hover{background:rgba(167,139,250,.09);border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
+.ci-icon{font-size:18px;}
+.sagan{color:rgba(226,232,240,.2);font-size:.78rem;font-style:italic;margin-top:10px;}
+
+footer{text-align:center;padding:24px;color:rgba(226,232,240,.18);font-size:.76rem;letter-spacing:.1em;border-top:1px solid rgba(255,255,255,.05);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{gap:0;overflow-x:auto;justify-content:flex-start;}
+  .nav-item{padding:14px 14px;font-size:.7rem;}
+  .ring-2,.ring-3{display:none;}
+  .section{padding:60px 20px;}
+  .proj-grid,.skills-grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
-<!-- 星空背景 -->
 <div id="starfield"></div>
 
-<!-- 浮动粒子 -->
-<div id="particles"></div>
+<div id="page">
 
-<div id="app">
-  <!-- Hero -->
-  <section class="hero" id="home">
-    <div class="hero-orbit-ring orbit-1">
-      <div class="orbit-dot" style="background: var(--accent); box-shadow: 0 0 6px var(--accent);"></div>
+<!-- NAV -->
+<nav>
+  <button class="nav-item" onclick="goto('edu')">🎓 教育</button>
+  <button class="nav-item" onclick="goto('exp')">💼 经历</button>
+  <button class="nav-item" onclick="goto('proj')">🚀 项目</button>
+  <button class="nav-item" onclick="goto('skill')">⚡ 技能</button>
+  <button class="nav-item" onclick="goto('contact')">📡 联系</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- orbit rings -->
+  <div class="ring ring-1" style="position:absolute;top:50%;left:50%;margin:-150px 0 0 -150px;">
+    <div class="ring-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);top:50%;left:0;margin:-3.5px 0 0 -3.5px;"></div>
+  </div>
+  <div class="ring ring-2" style="position:absolute;top:50%;left:50%;margin:-230px 0 0 -230px;">
+    <div class="ring-dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2);top:0;left:50%;margin:-3.5px 0 0 -3.5px;"></div>
+  </div>
+  <div class="ring ring-3" style="position:absolute;top:50%;left:50%;margin:-320px 0 0 -320px;">
+    <div class="ring-dot" style="background:var(--accent3);box-shadow:0 0 6px var(--accent3);top:50%;left:100%;margin:-3.5px 0 0 -3.5px;"></div>
+  </div>
+
+  <div class="avatar-wrap">
+    <div class="avatar-glow"></div>
+    <div class="avatar">🌌</div>
+  </div>
+
+  <p class="hero-en">ZHANG DAN YI</p>
+  <h1 class="hero-name">张丹逸</h1>
+  <p class="hero-title">✦ 数据科学家 · 环境建模者 · 探索者 ✦</p>
+  <p class="hero-desc">
+    UCL 环境数据建模硕士 · 西交利物浦大学金融数学学士<br>
+    雅思 8.0 · 五段数据分析实习 · 全栈数量研究能力<br>
+    <em style="opacity:.45;font-size:.85em;">SQL · Python · R · GIS · 机器学习 · NLP</em>
+  </p>
+
+  <div class="hero-tags">
+    <span class="tag t1">📊 数据分析</span>
+    <span class="tag t2">🌍 环境建模</span>
+    <span class="tag t3">💹 金融数学</span>
+    <span class="tag t4">🤖 机器学习</span>
+    <span class="tag t5">🗺️ GIS 空间分析</span>
+    <span class="tag t1">📝 NLP 文本分析</span>
+    <span class="tag t2">🏦 风险量化</span>
+    <span class="tag t3">🎓 PhD 申请中</span>
+  </div>
+
+  <div class="scroll-cue">
+    <span>探索宇宙</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ① 教育星系 -->
+<section class="section" id="edu">
+  <div class="sec-label">
+    <span class="sec-num">01</span>
+    <div class="sec-title-wrap">
+      <h2 class="sec-title" style="color:var(--accent);">教育星系</h2>
+      <p class="sec-sub">Academic Constellation</p>
     </div>
-    <div class="hero-orbit-ring orbit-2">
-      <div class="orbit-dot" style="background: var(--accent2); box-shadow: 0 0 6px var(--accent2); top: 0; left: 50%; margin-left: -4px; margin-top: -4px;"></div>
-    </div>
-    <div class="hero-orbit-ring orbit-3">
-      <div class="orbit-dot" style="background: var(--accent3); box-shadow: 0 0 6px var(--accent3); top: 50%; left: 100%; margin-left: -4px; margin-top: -4px;"></div>
-    </div>
+  </div>
 
-    <div class="avatar-container">
-      <div class="avatar-glow"></div>
-      <div class="avatar">🌌</div>
-    </div>
-
-    <h1 class="hero-name">Cathy Zhang</h1>
-    <p class="hero-title">✦ 数据探索者 · 世界建构者 ✦</p>
-    <p class="hero-desc">
-      在数字经济与地球科学的交汇处寻觅星光，<br>
-      用数据为这个世界建立更清晰的模型。<br>
-      <em style="opacity:0.5">数据科学 · 环境建模 · 绿色金融</em>
-    </p>
-
-    <div class="hero-tags">
-      <span class="tag tag-purple">📊 数据科学</span>
-      <span class="tag tag-blue">🌍 环境建模</span>
-      <span class="tag tag-green">💹 数字经济</span>
-      <span class="tag tag-pink">🏦 绿色金融</span>
-      <span class="tag tag-gold">🎓 PhD申请中</span>
-      <span class="tag tag-purple">🌏 QS Top100</span>
-    </div>
-
-    <div class="scroll-hint">
-      <span>探索宇宙</span>
-      <div class="scroll-arrow"></div>
-    </div>
-  </section>
-
-  <!-- 导航 -->
-  <nav class="section-nav">
-    <button class="nav-btn" onclick="scrollTo('education')">🎓 教育星系</button>
-    <button class="nav-btn" onclick="scrollTo('experience')">💼 经历星云</button>
-    <button class="nav-btn" onclick="scrollTo('skills')">⚡ 技能星座</button>
-    <button class="nav-btn" onclick="scrollTo('projects')">🚀 项目星群</button>
-    <button class="nav-btn" onclick="scrollTo('contact')">📡 联系卫星</button>
-  </nav>
-
-  <!-- 教育经历 -->
-  <section class="galaxy-section" id="education">
-    <div class="section-header">
-      <div class="section-planet planet-edu">🎓</div>
-      <div>
-        <h2 class="section-title" style="color: var(--accent);">教育星系</h2>
-        <p class="section-subtitle">Academic Constellation</p>
-      </div>
-    </div>
-
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-dot" style="border-color: var(--accent); box-shadow: 0 0 8px var(--accent);"></div>
-        <div class="timeline-card">
-          <div class="card-period">
-            <div class="period-dot"></div>
-            2025 – 至今 · 进行中
-          </div>
-          <div class="card-title">博士申请 · PhD in Progress</div>
-          <div class="card-org">目标：QS Top100 全球院校 · 全额奖学金</div>
-          <div class="card-desc">
-            专注申请数据科学、数字经济、环境建模、可持续金融等方向。
-            已接触 ETH Zürich、CEU Vienna、美国顶校等项目。
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">数据科学</span>
-            <span class="card-tag">环境建模</span>
-            <span class="card-tag">数字经济</span>
-            <span class="card-tag">全额奖学金</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-card">
-          <div class="card-period">
-            <div class="period-dot"></div>
-            [请填写年份] – [结束年份]
-          </div>
-          <div class="card-title">硕士/本科学位</div>
-          <div class="card-org">[学校名称] · [专业名称]</div>
-          <div class="card-desc">
-            [请填写你的教育背景，例如：主修经济学/计算机科学/环境科学，GPA，荣誉等]
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">[专业方向]</span>
-            <span class="card-tag">[成就/荣誉]</span>
-          </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+      <div class="tl-card glass">
+        <div class="tl-period"><div class="tl-period-dot"></div>2024.09 — 2026.02</div>
+        <div class="tl-title">理学硕士 · 环境数据建模</div>
+        <div class="tl-org">🏛️ 伦敦大学学院 UCL · 英国伦敦</div>
+        <div class="tl-desc">全球顶尖综合大学（QS全球前10），专注环境数据科学与建模方向。</div>
+        <div class="tl-tags">
+          <span class="tl-tag">机器学习算法</span>
+          <span class="tl-tag">气候统计建模</span>
+          <span class="tl-tag">GIS空间分析</span>
+          <span class="tl-tag">科学计算</span>
+          <span class="tl-tag">陆地碳算法</span>
+          <span class="tl-tag">数值分析</span>
         </div>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- 工作经历 -->
-  <section class="galaxy-section" id="experience">
-    <div class="section-header">
-      <div class="section-planet planet-exp">💼</div>
-      <div>
-        <h2 class="section-title" style="color: var(--accent2);">经历星云</h2>
-        <p class="section-subtitle">Experience Nebula</p>
-      </div>
-    </div>
-
-    <div class="timeline" style="--accent: #60a5fa;">
-      <div class="timeline-item">
-        <div class="timeline-dot" style="border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2);"></div>
-        <div class="timeline-card" style="--accent: #60a5fa;">
-          <div class="card-period" style="color: var(--accent2);">
-            <div class="period-dot" style="background: var(--accent2);"></div>
-            [时间段]
-          </div>
-          <div class="card-title">[职位名称]</div>
-          <div class="card-org" style="color: var(--accent2);">[公司/机构名称] · [城市]</div>
-          <div class="card-desc">
-            [工作内容描述，例如：负责XX数据分析项目，使用Python/R进行数据处理，
-            产出XXX成果，对公司/项目产生了XXX影响]
-          </div>
-          <div class="card-tags">
-            <span class="card-tag" style="color: var(--accent2); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08);">[技术栈]</span>
-            <span class="card-tag" style="color: var(--accent2); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08);">[成果]</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-dot" style="border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2);"></div>
-        <div class="timeline-card" style="--accent: #60a5fa;">
-          <div class="card-period" style="color: var(--accent2);">
-            <div class="period-dot" style="background: var(--accent2);"></div>
-            [时间段]
-          </div>
-          <div class="card-title">[另一段经历]</div>
-          <div class="card-org" style="color: var(--accent2);">[机构名称] · [城市]</div>
-          <div class="card-desc">
-            [描述内容]
-          </div>
+    <div class="tl-item" style="animation-delay:.15s;">
+      <div class="tl-dot" style="border-color:var(--accent2);box-shadow:0 0 8px var(--accent2);"></div>
+      <div class="tl-card glass" style="--accent:var(--accent2);">
+        <div class="tl-period" style="color:var(--accent2);"><div class="tl-period-dot" style="background:var(--accent2);"></div>2020.09 — 2024.06</div>
+        <div class="tl-title">理学学士 · 金融数学</div>
+        <div class="tl-org" style="color:var(--accent2);">🏛️ 西交利物浦大学 · 江苏苏州</div>
+        <div class="tl-desc">利物浦大学联合办学，英语授课，国际化数理金融培养体系。</div>
+        <div class="tl-tags">
+          <span class="tl-tag tl-tag-blue">概率统计</span>
+          <span class="tl-tag tl-tag-blue">线性代数</span>
+          <span class="tl-tag tl-tag-blue">计量经济学</span>
+          <span class="tl-tag tl-tag-blue">风险管理</span>
+          <span class="tl-tag tl-tag-blue">量化交易</span>
+          <span class="tl-tag tl-tag-blue">金融工程</span>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="sep"></div>
 
-  <!-- 技能星座 -->
-  <section class="galaxy-section" id="skills">
-    <div class="section-header">
-      <div class="section-planet planet-skill">⚡</div>
-      <div>
-        <h2 class="section-title" style="color: var(--accent3);">技能星座</h2>
-        <p class="section-subtitle">Skills Constellation</p>
+<!-- ② 经历星云 -->
+<section class="section" id="exp">
+  <div class="sec-label">
+    <span class="sec-num">02</span>
+    <div class="sec-title-wrap">
+      <h2 class="sec-title" style="color:var(--accent2);">经历星云</h2>
+      <p class="sec-sub">Experience Nebula</p>
+    </div>
+  </div>
+
+  <div class="timeline">
+
+    <!-- 小红书 -->
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:var(--accent4);box-shadow:0 0 8px var(--accent4);"></div>
+      <div class="tl-card glass">
+        <div class="tl-period" style="color:var(--accent4);"><div class="tl-period-dot" style="background:var(--accent4);"></div>2025.10 — 2025.12</div>
+        <div class="tl-title">策略运营 · 社区回查数据岗</div>
+        <div class="tl-org" style="color:var(--accent4);">📱 小红书 · 上海</div>
+        <ul class="tl-ul">
+          <li>通过 SQL 搭建数据看板，构建完善的审核运营指标体系，设计 A/B 测试验证审核策略效果</li>
+          <li>针对风险回查动作中低召回率、低处置率问题进行特征因子挖掘，撰写分析报告推动策略优化</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag tl-tag-pink">SQL</span>
+          <span class="tl-tag tl-tag-pink">A/B 测试</span>
+          <span class="tl-tag tl-tag-pink">数据看板</span>
+          <span class="tl-tag tl-tag-pink">特征因子挖掘</span>
+          <span class="tl-tag tl-tag-pink">策略运营</span>
+        </div>
       </div>
     </div>
 
-    <div class="skills-grid">
-      <div class="skill-card" style="--c: #a78bfa;">
-        <div class="skill-icon">🐍</div>
-        <div class="skill-name">Python</div>
-        <div class="skill-level">数据分析 · 机器学习 · 爬虫</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 90%; --c: #a78bfa;"></div></div>
-      </div>
-
-      <div class="skill-card" style="--c: #60a5fa;">
-        <div class="skill-icon">📊</div>
-        <div class="skill-name">R / Stata</div>
-        <div class="skill-level">计量经济学 · 统计建模</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 80%; --c: #60a5fa;"></div></div>
-      </div>
-
-      <div class="skill-card" style="--c: #34d399;">
-        <div class="skill-icon">🗄️</div>
-        <div class="skill-name">SQL / 数据库</div>
-        <div class="skill-level">数据查询 · ETL · 数据仓库</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 75%; --c: #34d399;"></div></div>
-      </div>
-
-      <div class="skill-card" style="--c: #f472b6;">
-        <div class="skill-icon">🌍</div>
-        <div class="skill-name">GIS / 空间分析</div>
-        <div class="skill-level">环境数据 · 地理信息系统</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 70%; --c: #f472b6;"></div></div>
-      </div>
-
-      <div class="skill-card" style="--c: #fbbf24;">
-        <div class="skill-icon">📈</div>
-        <div class="skill-name">机器学习</div>
-        <div class="skill-level">sklearn · TensorFlow · 预测模型</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 75%; --c: #fbbf24;"></div></div>
-      </div>
-
-      <div class="skill-card" style="--c: #fb7185;">
-        <div class="skill-icon">📝</div>
-        <div class="skill-name">学术写作</div>
-        <div class="skill-level">论文 · 研究提案 · SOP</div>
-        <div class="skill-bar"><div class="skill-fill" style="--pct: 85%; --c: #fb7185;"></div></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- 项目星群 -->
-  <section class="galaxy-section" id="projects">
-    <div class="section-header">
-      <div class="section-planet planet-proj">🚀</div>
-      <div>
-        <h2 class="section-title" style="color: var(--accent4);">项目星群</h2>
-        <p class="section-subtitle">Project Cluster</p>
+    <!-- Ipsos -->
+    <div class="tl-item" style="animation-delay:.1s;">
+      <div class="tl-dot" style="border-color:var(--accent2);box-shadow:0 0 8px var(--accent2);"></div>
+      <div class="tl-card glass">
+        <div class="tl-period" style="color:var(--accent2);"><div class="tl-period-dot" style="background:var(--accent2);"></div>2025.09 — 2025.10</div>
+        <div class="tl-title">定量研究实习生</div>
+        <div class="tl-org" style="color:var(--accent2);">📊 益普索 Ipsos · 上海</div>
+        <ul class="tl-ul">
+          <li>定量分析品牌广告投放效果，使用数据透视表和 SPSS 提取核心数据，设计 AB testing 进行归因分析</li>
+          <li>核心参与《2025年亿滋企业洞察商业分析》项目，独立负责 MDLZ 中国消费市场分析模块</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag tl-tag-blue">SPSS</span>
+          <span class="tl-tag tl-tag-blue">定量分析</span>
+          <span class="tl-tag tl-tag-blue">市场研究</span>
+          <span class="tl-tag tl-tag-blue">消费者洞察</span>
+        </div>
       </div>
     </div>
 
-    <div class="projects-grid">
-      <div class="project-card" style="--pc: #a78bfa;">
-        <div class="project-emoji">🔭</div>
-        <div class="project-name">PhD申请信息聚合器</div>
-        <div class="project-desc">
-          自动爬取QS Top100院校全奖PhD机会，覆盖数据科学、环境、经济学等6个方向，
-          自动分类整理，帮助申请人高效获取信息。
+    <!-- Cryptoracle -->
+    <div class="tl-item" style="animation-delay:.2s;">
+      <div class="tl-dot" style="border-color:var(--accent5);box-shadow:0 0 8px var(--accent5);"></div>
+      <div class="tl-card glass">
+        <div class="tl-period" style="color:var(--accent5);"><div class="tl-period-dot" style="background:var(--accent5);"></div>2025.06 — 2025.07</div>
+        <div class="tl-title">数据分析实习生 · 产品部</div>
+        <div class="tl-org" style="color:var(--accent5);">₿ Cryptoracle · 马来西亚</div>
+        <ul class="tl-ul">
+          <li>SQL 提取清洗金融市场交易数据，通过 PCA 主成分分析实现数据降维，挖掘市场价格波动特征因子</li>
+          <li>构建线性回归与时间序列预测模型，识别异常交易行为；Python 聚类分析构建用户画像标签体系</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag tl-tag-gold">Python</span>
+          <span class="tl-tag tl-tag-gold">PCA</span>
+          <span class="tl-tag tl-tag-gold">时间序列</span>
+          <span class="tl-tag tl-tag-gold">聚类分析</span>
+          <span class="tl-tag tl-tag-gold">金融数据</span>
         </div>
-        <div class="card-tags" style="margin-bottom: 16px;">
-          <span class="card-tag">Python</span>
-          <span class="card-tag">Web Scraping</span>
-          <span class="card-tag">GitHub Pages</span>
-        </div>
-        <a href="#" class="project-link" style="--pc: #a78bfa; color: #a78bfa; border-color: rgba(167,139,250,0.5);">
-          🔗 查看项目
-        </a>
-      </div>
-
-      <div class="project-card" style="--pc: #60a5fa;">
-        <div class="project-emoji">📊</div>
-        <div class="project-name">[你的项目名称]</div>
-        <div class="project-desc">
-          [项目描述：例如某环境建模研究、数字经济分析报告、或其他你参与过的数据科学项目]
-        </div>
-        <div class="card-tags" style="margin-bottom: 16px;">
-          <span class="card-tag" style="color: #60a5fa; border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08);">[技术]</span>
-          <span class="card-tag" style="color: #60a5fa; border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08);">[工具]</span>
-        </div>
-        <a href="#" class="project-link" style="--pc: #60a5fa; color: #60a5fa; border-color: rgba(96,165,250,0.5);">
-          🔗 了解更多
-        </a>
-      </div>
-
-      <div class="project-card" style="--pc: #34d399;">
-        <div class="project-emoji">🌱</div>
-        <div class="project-name">[另一个项目]</div>
-        <div class="project-desc">
-          [可以是课程论文、实习项目、竞赛作品等任何你引以为傲的成果]
-        </div>
-        <div class="card-tags" style="margin-bottom: 16px;">
-          <span class="card-tag" style="color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08);">[相关技术]</span>
-        </div>
-        <a href="#" class="project-link" style="--pc: #34d399; color: #34d399; border-color: rgba(52,211,153,0.5);">
-          🔗 查看详情
-        </a>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- 联系 -->
-  <section class="contact-section" id="contact">
-    <p style="color: var(--accent); letter-spacing: 0.2em; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 16px;">📡 Contact</p>
-    <h2 class="contact-title">让我们连接宇宙</h2>
-    <p class="contact-desc">
-      无论是合作机会、学术交流，还是只是想聊聊数据与星辰，<br>
-      我都在这里等待你的信号 ✨
-    </p>
-
-    <div class="contact-grid">
-      <a href="mailto:your.email@example.com" class="contact-item">
-        <span class="ci-icon">📧</span>
-        <span>your.email@example.com</span>
-      </a>
-      <a href="#" class="contact-item">
-        <span class="ci-icon">🔗</span>
-        <span>LinkedIn</span>
-      </a>
-      <a href="#" class="contact-item">
-        <span class="ci-icon">🐙</span>
-        <span>GitHub</span>
-      </a>
-      <a href="#" class="contact-item">
-        <span class="ci-icon">📚</span>
-        <span>Google Scholar</span>
-      </a>
+    <!-- 科大讯飞 -->
+    <div class="tl-item" style="animation-delay:.3s;">
+      <div class="tl-dot" style="border-color:var(--accent3);box-shadow:0 0 8px var(--accent3);"></div>
+      <div class="tl-card glass">
+        <div class="tl-period" style="color:var(--accent3);"><div class="tl-period-dot" style="background:var(--accent3);"></div>2023.07 — 2023.10</div>
+        <div class="tl-title">研究分析实习生 · 知识图谱应用部</div>
+        <div class="tl-org" style="color:var(--accent3);">🤖 科大讯飞 · 苏州</div>
+        <ul class="tl-ul">
+          <li>参与苏州司法案件文本分析标签体系设计，基于案件类型/罪名/判决等维度建立多层次标签体系</li>
+          <li>使用 Python + NLP 实现案件自动分类与命名实体识别，机器识别准确率提升至 <strong style="color:var(--accent3);">98%</strong></li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag tl-tag-green">NLP</span>
+          <span class="tl-tag tl-tag-green">知识图谱</span>
+          <span class="tl-tag tl-tag-green">文本分类</span>
+          <span class="tl-tag tl-tag-green">实体识别</span>
+        </div>
+      </div>
     </div>
 
-    <p style="color: rgba(226,232,240,0.3); font-size: 0.8rem; font-style: italic;">
-      "The cosmos is within us. We are made of star-stuff." — Carl Sagan
-    </p>
-  </section>
+    <!-- 德勤 -->
+    <div class="tl-item" style="animation-delay:.4s;">
+      <div class="tl-dot"></div>
+      <div class="tl-card glass">
+        <div class="tl-period"><div class="tl-period-dot"></div>2022.05 — 2022.08</div>
+        <div class="tl-title">风险咨询实习生</div>
+        <div class="tl-org">🏢 德勤 Deloitte · 重庆</div>
+        <ul class="tl-ul">
+          <li>承担每月业务数据核算，识别业务问题，撰写风险评估报告与内控优化方案</li>
+          <li>基于异常检测算法监测奔驰汽车项目数据，统计方法计算风险指标，风险预警准确率 <strong style="color:var(--accent);">93%</strong></li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag">风险量化</span>
+          <span class="tl-tag">异常检测</span>
+          <span class="tl-tag">内控优化</span>
+          <span class="tl-tag">统计分析</span>
+        </div>
+      </div>
+    </div>
 
-  <footer class="footer">
-    ✦ Cathy Zhang · 简历宇宙 · 2025 ✦ &nbsp;·&nbsp; Made with 🌌 & Code
-  </footer>
-</div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ③ 项目星群 -->
+<section class="section" id="proj">
+  <div class="sec-label">
+    <span class="sec-num">03</span>
+    <div class="sec-title-wrap">
+      <h2 class="sec-title" style="color:var(--accent3);">项目星群</h2>
+      <p class="sec-sub">Project Cluster</p>
+    </div>
+  </div>
+
+  <div class="proj-grid">
+
+    <div class="proj-card glass" style="--pc:var(--accent);">
+      <div class="proj-emoji">🌿</div>
+      <div class="proj-name">TCM-GPT · 中医药大模型</div>
+      <div class="proj-desc">上海中医药大学 × 百度联合项目（2023.09—2024.06）。基于"文心一言"架构构建中医药领域语言模型，负责数百万字语料的数据预处理、实体识别与语义分析，涵盖症状、方剂、经络等关键知识实体。</div>
+      <div class="tl-tags">
+        <span class="tl-tag">Python</span>
+        <span class="tl-tag">NLP</span>
+        <span class="tl-tag">知识图谱</span>
+        <span class="tl-tag">大模型</span>
+        <span class="tl-tag">语料清洗</span>
+      </div>
+    </div>
+
+    <div class="proj-card glass" style="--pc:var(--accent2);">
+      <div class="proj-emoji">📡</div>
+      <div class="proj-name">金融市场异常交易检测</div>
+      <div class="proj-desc">Cryptoracle 实习期间独立构建。结合时间序列预测与聚类分析，从加密货币交易数据与社媒私域数据中识别潜在市场操控风险，构建多维用户画像标签体系，提升个性化分析准确性。</div>
+      <div class="tl-tags">
+        <span class="tl-tag tl-tag-blue">时间序列</span>
+        <span class="tl-tag tl-tag-blue">PCA</span>
+        <span class="tl-tag tl-tag-blue">聚类分析</span>
+        <span class="tl-tag tl-tag-blue">SQL</span>
+      </div>
+    </div>
+
+    <div class="proj-card glass" style="--pc:var(--accent3);">
+      <div class="proj-emoji">🏛️</div>
+      <div class="proj-name">司法文本智能分类系统</div>
+      <div class="proj-desc">科大讯飞实习期间参与。设计多层次司法案件标签体系，通过 Python + NLP 实现案件自动分类与命名实体识别，将机器识别准确率提升至 98%，显著提升司法数据结构化效率。</div>
+      <div class="tl-tags">
+        <span class="tl-tag tl-tag-green">NLP</span>
+        <span class="tl-tag tl-tag-green">文本分类</span>
+        <span class="tl-tag tl-tag-green">实体识别</span>
+        <span class="tl-tag tl-tag-green">准确率98%</span>
+      </div>
+    </div>
+
+    <div class="proj-card glass" style="--pc:var(--accent4);">
+      <div class="proj-emoji">📊</div>
+      <div class="proj-name">品牌广告效果量化分析</div>
+      <div class="proj-desc">Ipsos 实习期间核心项目。定量分析亿滋中国（MDLZ）品牌广告投放效果，设计 A/B 测试框架，归因分析品牌认知与转化意愿提升，输出战略建议报告，独立负责消费市场分析模块。</div>
+      <div class="tl-tags">
+        <span class="tl-tag tl-tag-pink">SPSS</span>
+        <span class="tl-tag tl-tag-pink">A/B 测试</span>
+        <span class="tl-tag tl-tag-pink">归因分析</span>
+        <span class="tl-tag tl-tag-pink">市场研究</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ④ 技能星座 -->
+<section class="section" id="skill">
+  <div class="sec-label">
+    <span class="sec-num">04</span>
+    <div class="sec-title-wrap">
+      <h2 class="sec-title" style="color:var(--accent5);">技能星座</h2>
+      <p class="sec-sub">Skills Constellation</p>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+    <div class="skill-card glass"><div class="sk-icon">🐍</div><div class="sk-name">Python</div><div class="sk-desc">数据分析 · NLP · 机器学习 · 爬虫</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent);width:92%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">🗄️</div><div class="sk-name">SQL</div><div class="sk-desc">数据提取 · 指标搭建 · 数据看板</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent2);width:90%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">📈</div><div class="sk-name">R / Matlab</div><div class="sk-desc">统计建模 · 时间序列 · 计量经济</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent3);width:82%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">📊</div><div class="sk-name">SPSS / Excel</div><div class="sk-desc">定量分析 · 数据透视 · 报告撰写</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent4);width:88%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">🌍</div><div class="sk-name">GIS / 空间分析</div><div class="sk-desc">环境数据 · 地理信息 · 空间建模</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent5);width:78%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">🤖</div><div class="sk-name">机器学习 / NLP</div><div class="sk-desc">sklearn · 聚类 · 文本分类 · 实体识别</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent);width:80%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">💹</div><div class="sk-name">金融量化</div><div class="sk-desc">风险建模 · 异常检测 · 衍生品定价</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent2);width:75%;"></div></div></div>
+    <div class="skill-card glass"><div class="sk-icon">🌐</div><div class="sk-name">英语</div><div class="sk-desc">雅思 8.0 · 全英授课 · 学术写作</div><div class="sk-bar"><div class="sk-fill" style="--c:var(--accent3);width:95%;"></div></div></div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ⑤ 联系卫星 -->
+<section class="contact-wrap" id="contact">
+  <p class="contact-pretitle">📡 Contact</p>
+  <h2 class="contact-title">让我们连接宇宙</h2>
+  <p class="contact-desc">
+    无论是数据科学合作、PhD 学术交流，<br>
+    还是想聊聊环境建模与金融量化的交叉地带，<br>
+    我都在这里 ✨
+  </p>
+  <div class="contact-grid">
+    <a href="mailto:13359485898@163.com" class="ci glass"><span class="ci-icon">📧</span>13359485898@163.com</a>
+    <a href="tel:+8613359485898" class="ci glass"><span class="ci-icon">📱</span>(+86) 133-5948-5898</a>
+    <a href="#" class="ci glass"><span class="ci-icon">💬</span>微信：zdy020115</a>
+    <a href="https://github.com/DanyiZhang2002/cathy-resume-universe" class="ci glass" target="_blank"><span class="ci-icon">🐙</span>GitHub</a>
+  </div>
+  <p class="sagan">"The cosmos is within us. We are made of star-stuff." — Carl Sagan</p>
+</section>
+
+<footer>✦ 张丹逸 · 简历宇宙 · 2025 ✦ &nbsp;·&nbsp; UCL × 西交利物浦 × 数据科学</footer>
+
+</div><!-- /page -->
 
 <script>
-// ======== 生成星空 ========
-function createStars() {
-  const sf = document.getElementById('starfield');
-  const count = 220;
-  for (let i = 0; i < count; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    const size = Math.random() * 2.5 + 0.5;
-    const dur = Math.random() * 4 + 2;
-    const delay = Math.random() * 5;
-    const minOp = Math.random() * 0.3 + 0.1;
-    const maxOp = Math.random() * 0.6 + 0.4;
-    star.style.cssText = `
-      width: ${size}px; height: ${size}px;
-      top: ${Math.random() * 100}%;
-      left: ${Math.random() * 100}%;
-      --dur: ${dur}s;
-      --min-op: ${minOp};
-      --max-op: ${maxOp};
-      animation-delay: -${delay}s;
-    `;
-    sf.appendChild(star);
-  }
-}
+// ── NAV SCROLL ──
+function goto(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
 
-// ======== 流星 ========
-function createMeteors() {
-  const sf = document.getElementById('starfield');
-  for (let i = 0; i < 4; i++) {
-    const m = document.createElement('div');
-    m.className = 'meteor';
-    m.style.cssText = `
-      top: ${Math.random() * 40}%;
-      left: ${Math.random() * 80}%;
-      --speed: ${Math.random() * 4 + 3}s;
-      animation-delay: -${Math.random() * 8}s;
-    `;
+// ── STARFIELD ──
+(function(){
+  const sf=document.getElementById('starfield');
+  // stars
+  for(let i=0;i<240;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2.4+.4;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${Math.random()*4+2}s;--lo:${Math.random()*.25+.05};--hi:${Math.random()*.55+.3};animation-delay:-${Math.random()*6}s;`;
+    sf.appendChild(s);
+  }
+  // meteors
+  for(let i=0;i<5;i++){
+    const m=document.createElement('div');
+    m.className='meteor';
+    m.style.cssText=`top:${Math.random()*45}%;left:${Math.random()*75}%;--s:${Math.random()*4+4}s;animation-delay:-${Math.random()*9}s;`;
     sf.appendChild(m);
   }
-}
+})();
 
-// ======== 浮动粒子 ========
-function createParticles() {
-  const pc = document.getElementById('particles');
-  const colors = ['#a78bfa', '#60a5fa', '#34d399', '#f472b6', '#fbbf24'];
-  for (let i = 0; i < 8; i++) {
-    const p = document.createElement('div');
-    p.className = 'floating-particle';
-    const size = Math.random() * 4 + 2;
-    const color = colors[i % colors.length];
-    p.style.cssText = `
-      width: ${size}px; height: ${size}px;
-      background: ${color};
-      top: ${Math.random() * 100}%;
-      left: ${Math.random() * 100}%;
-      --ft: ${Math.random() * 8 + 6}s;
-      --tx: ${(Math.random() - 0.5) * 80}px;
-      --ty: ${(Math.random() - 0.5) * 80}px;
-      animation-delay: -${Math.random() * 8}s;
-      box-shadow: 0 0 ${size * 2}px ${color};
-    `;
-    pc.appendChild(p);
-  }
-}
-
-// ======== 平滑滚动 ========
-function scrollTo(id) {
-  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-}
-
-// ======== 鼠标视差 ========
-document.addEventListener('mousemove', (e) => {
-  const rings = document.querySelectorAll('.hero-orbit-ring');
-  const mx = (e.clientX / window.innerWidth - 0.5) * 10;
-  const my = (e.clientY / window.innerHeight - 0.5) * 10;
-  rings.forEach((ring, i) => {
-    const factor = (i + 1) * 0.4;
-    ring.style.transform += ` translate(${mx * factor}px, ${my * factor}px)`;
-  });
-});
-
-// ======== 初始化 ========
-createStars();
-createMeteors();
-createParticles();
-
-// IntersectionObserver 触发动画
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.animationPlayState = 'running';
+// ── SKILL BAR ANIMATE ON SCROLL ──
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.sk-fill').forEach(b=>{
+        b.style.width=b.style.width; // trigger reflow
+      });
     }
   });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.timeline-item').forEach(el => {
-  el.style.animationPlayState = 'paused';
-  observer.observe(el);
-});
-
-document.querySelectorAll('.skill-fill').forEach(el => {
-  el.style.width = '0';
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.animation = `fillBar 1.5s ease forwards`;
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.3 });
-  io.observe(el);
-});
+},{threshold:.2});
+document.querySelectorAll('.skills-grid').forEach(el=>obs.observe(el));
 </script>
+
 </body>
 </html>
