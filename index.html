@@ -1,704 +1,748 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>张丹逸 | 宇宙简历</title>
+<title>Danyi's Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background: #0a0014;
-  overflow: hidden;
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #e2e8f0;
-  cursor: default;
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: radial-gradient(ellipse at 30% 50%, rgba(20,40,100,0.4) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(80,20,60,0.3) 0%, transparent 50%),
+              #000005;
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  color: #fff;
 }
-canvas { display: block; }
+canvas#galaxy-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+}
 
-/* Top header */
-#header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  text-align: center;
-  padding: 28px 20px 16px;
-  z-index: 10;
+/* ── Title ── */
+#title {
+  position: fixed; top: 32px; left: 36px; z-index: 10;
   pointer-events: none;
 }
-#header h1 {
-  font-size: 28px;
-  font-weight: 300;
-  letter-spacing: 6px;
-  color: #f0e6ff;
-  text-shadow: 0 0 30px rgba(147,51,234,0.5);
-}
-#header p {
-  font-size: 13px;
-  color: rgba(226,232,240,0.5);
-  margin-top: 6px;
-  letter-spacing: 3px;
-}
-
-/* Left navigation */
-#left-nav {
-  position: fixed;
-  left: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.nav-dot {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.3s, transform 0.3s;
-}
-.nav-dot:hover { opacity: 1; transform: translateX(4px); }
-.nav-dot.active { opacity: 1; }
-.nav-dot .dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,0.5);
-  transition: all 0.3s;
-}
-.nav-dot.active .dot {
-  border-color: currentColor;
-  box-shadow: 0 0 8px currentColor;
-}
-.nav-dot .label {
-  font-size: 11px;
+.universe-name {
+  font-family: 'Dancing Script', cursive;
+  font-size: 42px; font-weight: 700;
+  background: linear-gradient(135deg, #e0d4ff 0%, #a78bfa 50%, #7c6cf0 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
   letter-spacing: 1px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s;
 }
-.nav-dot:hover .label { opacity: 1; }
+.universe-sub {
+  font-size: 13px; font-weight: 300; color: rgba(196,181,253,0.6);
+  margin-top: 2px; letter-spacing: 3px; text-transform: uppercase;
+}
 
-/* Right panel */
+/* ── Counter ── */
+#counter {
+  position: fixed; top: 32px; right: 36px; z-index: 10;
+  font-size: 14px; color: rgba(255,255,255,0.6);
+  letter-spacing: 1px; pointer-events: none;
+}
+#counter span#discovered { color: #fbbf24; font-weight: 600; }
+
+/* ── Bottom Nav ── */
+#bottom-nav {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; gap: 10px;
+}
+.nav-btn {
+  padding: 10px 24px; border: 1px solid rgba(196,181,253,0.25);
+  border-radius: 999px; background: rgba(10,0,30,0.7);
+  backdrop-filter: blur(12px); color: rgba(255,255,255,0.8);
+  font-size: 13px; font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.5px;
+}
+.nav-btn:hover { background: rgba(100,80,200,0.25); border-color: rgba(196,181,253,0.5); color: #fff; }
+.nav-btn.active { background: rgba(120,100,220,0.3); border-color: rgba(196,181,253,0.6); color: #fff; }
+
+/* ── Planet Labels (HTML overlay) ── */
+.planet-label {
+  position: fixed; z-index: 8; pointer-events: none;
+  font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.75);
+  letter-spacing: 0.8px; white-space: nowrap;
+  text-shadow: 0 0 8px rgba(120,100,255,0.5);
+  transition: opacity 0.2s ease;
+  transform: translate(-50%, -100%);
+}
+.planet-label .label-icon { margin-right: 3px; font-size: 12px; }
+
+/* ── Side Panel ── */
 #panel {
-  position: fixed;
-  right: 0; top: 0; bottom: 0;
-  width: 380px;
-  background: rgba(10,0,20,0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(192,132,252,0.25);
+  position: fixed; right: 0; top: 0; bottom: 0; width: 400px; z-index: 20;
+  background: rgba(5, 0, 20, 0.88);
+  backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+  border-left: 1px solid rgba(196,181,253,0.15);
   transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-  z-index: 20;
-  overflow-y: auto;
-  padding: 60px 32px 32px;
+  transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow-y: auto; padding: 0;
 }
 #panel.open { transform: translateX(0); }
 #panel-close {
-  position: absolute;
-  top: 20px; right: 20px;
-  width: 32px; height: 32px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  color: #e2e8f0;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  position: absolute; top: 16px; right: 18px; z-index: 21;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
 }
-#panel-close:hover {
-  background: rgba(255,255,255,0.15);
-  border-color: rgba(255,255,255,0.4);
+#panel-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+#panel-content { padding: 48px 32px 32px; }
+.panel-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+.panel-period { font-size: 12px; color: rgba(196,181,253,0.6); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.panel-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; color: #fff; }
+.panel-org { font-size: 14px; color: rgba(196,181,253,0.7); margin-bottom: 20px; font-weight: 400; }
+.panel-divider { height: 1px; background: linear-gradient(90deg, rgba(196,181,253,0.3), transparent); margin: 20px 0; }
+.panel-bullets { list-style: none; padding: 0; }
+.panel-bullets li {
+  position: relative; padding: 8px 0 8px 18px;
+  font-size: 13.5px; line-height: 1.6; color: rgba(255,255,255,0.82);
 }
-#panel-icon {
-  font-size: 36px;
-  margin-bottom: 12px;
+.panel-bullets li::before {
+  content: '◆'; position: absolute; left: 0; top: 9px;
+  font-size: 7px; color: rgba(196,181,253,0.6);
 }
-#panel-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
-}
-#panel-subtitle {
-  font-size: 12px;
-  color: rgba(226,232,240,0.5);
-  letter-spacing: 2px;
-  margin-bottom: 24px;
-  text-transform: uppercase;
-}
-#panel-body {
-  font-size: 14px;
-  line-height: 1.8;
-  color: rgba(226,232,240,0.85);
-}
-#panel-body .item {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-#panel-body .item:last-child { border-bottom: none; }
-#panel-body .item-title {
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 4px;
-}
-#panel-body .item-meta {
-  font-size: 12px;
-  color: rgba(226,232,240,0.45);
-  margin-bottom: 6px;
-}
-#panel-body .item-desc {
-  font-size: 13px;
-  color: rgba(226,232,240,0.7);
-  line-height: 1.7;
-}
-#panel-body .skill-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-#panel-body .skill-name {
-  font-size: 13px;
-  width: 72px;
-  text-align: right;
-  color: rgba(226,232,240,0.7);
-}
-#panel-body .skill-track {
-  flex: 1;
-  height: 6px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 3px;
-  overflow: hidden;
-}
-#panel-body .skill-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
-}
-#panel-body .skill-pct {
-  font-size: 11px;
-  width: 32px;
-  color: rgba(226,232,240,0.5);
-}
-#panel-body .contact-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  font-size: 13px;
-}
-#panel-body .contact-label {
-  color: rgba(226,232,240,0.45);
-  width: 50px;
-  text-align: right;
-  font-size: 11px;
-  letter-spacing: 1px;
+.panel-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.panel-tag {
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(196,181,253,0.1); border: 1px solid rgba(196,181,253,0.2);
+  font-size: 12px; color: rgba(196,181,253,0.8);
 }
 
-/* Bottom nav */
-#bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  padding: 16px 20px;
-  z-index: 10;
-  background: linear-gradient(transparent, rgba(10,0,20,0.8));
-}
-#bottom-nav a {
-  font-size: 11px;
-  color: rgba(226,232,240,0.4);
-  text-decoration: none;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: color 0.3s;
-  cursor: pointer;
-}
-#bottom-nav a:hover { color: rgba(226,232,240,0.8); }
+/* Skills bars */
+.skill-bars { margin-top: 16px; }
+.skill-bar-row { margin-bottom: 14px; }
+.skill-bar-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.skill-bar-name { font-size: 13px; color: rgba(255,255,255,0.8); }
+.skill-bar-pct { font-size: 12px; color: rgba(196,181,253,0.6); }
+.skill-bar-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.skill-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.25,0.8,0.25,1); }
 
-/* Tooltip */
-#tooltip {
-  position: fixed;
-  padding: 6px 14px;
-  background: rgba(10,0,20,0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(192,132,252,0.2);
-  border-radius: 6px;
-  font-size: 12px;
-  color: #e2e8f0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 15;
-  white-space: nowrap;
+/* Contact panel */
+.contact-info { margin-top: 12px; }
+.contact-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.contact-row:last-child { border-bottom: none; }
+.contact-label { font-size: 12px; color: rgba(196,181,253,0.5); letter-spacing: 1px; text-transform: uppercase; min-width: 60px; }
+.contact-value { font-size: 14px; color: rgba(255,255,255,0.85); }
+.contact-value a { color: #a78bfa; text-decoration: none; }
+.contact-value a:hover { text-decoration: underline; }
+
+/* Hint text */
+#hint {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 10; font-size: 12px; color: rgba(255,255,255,0.3);
+  letter-spacing: 1px; pointer-events: none;
+  animation: hintPulse 3s ease-in-out infinite;
 }
-#tooltip.visible { opacity: 1; }
+@keyframes hintPulse { 0%,100%{opacity:0.3} 50%{opacity:0.6} }
+
+/* Scrollbar */
+#panel::-webkit-scrollbar { width: 4px; }
+#panel::-webkit-scrollbar-track { background: transparent; }
+#panel::-webkit-scrollbar-thumb { background: rgba(196,181,253,0.2); border-radius: 2px; }
+
+/* Loading */
+#loading {
+  position: fixed; inset: 0; z-index: 100;
+  background: #000005;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.8s ease;
+}
+#loading.hidden { opacity: 0; pointer-events: none; }
+.loading-text {
+  font-family: 'Dancing Script', cursive; font-size: 28px;
+  color: rgba(196,181,253,0.7); margin-bottom: 20px;
+}
+.loading-bar { width: 180px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 1px; overflow: hidden; }
+.loading-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a78bfa, #fbbf24); border-radius: 1px; transition: width 0.3s ease; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  #panel { width: 100%; }
+  .universe-name { font-size: 30px; }
+  #bottom-nav { bottom: 16px; }
+  .nav-btn { padding: 8px 16px; font-size: 12px; }
+}
 </style>
 </head>
 <body>
 
-<div id="header">
-  <h1>张 丹 逸</h1>
-  <p>Data Science · Environmental Modeling · NLP</p>
+<!-- Loading screen -->
+<div id="loading">
+  <div class="loading-text">Entering the Universe...</div>
+  <div class="loading-bar"><div class="loading-bar-fill" id="loading-fill"></div></div>
 </div>
 
-<div id="left-nav"></div>
+<!-- Canvas -->
+<canvas id="galaxy-canvas"></canvas>
 
+<!-- Title -->
+<div id="title">
+  <div class="universe-name">Danyi's Universe</div>
+  <div class="universe-sub">Danyi Zhang</div>
+</div>
+
+<!-- Counter -->
+<div id="counter">✦ <span id="discovered">0</span> / 8 worlds discovered</div>
+
+<!-- Hint -->
+<div id="hint">Click on planets to explore</div>
+
+<!-- Bottom Nav -->
+<div id="bottom-nav">
+  <button class="nav-btn active" data-tab="cosmos">✦ Professional Cosmos</button>
+  <button class="nav-btn" data-tab="contact">✦ Contact</button>
+</div>
+
+<!-- Panel -->
 <div id="panel">
   <button id="panel-close">✕</button>
-  <div id="panel-icon"></div>
-  <div id="panel-title"></div>
-  <div id="panel-subtitle"></div>
-  <div id="panel-body"></div>
+  <div id="panel-content"></div>
 </div>
 
-<div id="tooltip"></div>
-
-<div id="bottom-nav">
-  <a data-idx="0">教育</a>
-  <a data-idx="1">小红书</a>
-  <a data-idx="2">Ipsos</a>
-  <a data-idx="3">Cryptoracle</a>
-  <a data-idx="4">科大讯飞</a>
-  <a data-idx="5">德勤</a>
-  <a data-idx="6">TCM-GPT</a>
-  <a data-idx="7">技能</a>
-</div>
+<!-- Planet labels container -->
+<div id="labels-container"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ==================== DATA ====================
-const planets = [
-  {
-    name: '教育', icon: '🎓', color: '#9333ea', orbit: 105, size: 10, speed: 0.008,
-    subtitle: 'Education',
-    content: `<div class="item">
-      <div class="item-title">UCL · 环境数据建模 理学硕士</div>
-      <div class="item-meta">2024.09 - 2026.02</div>
-      <div class="item-desc">University College London，环境数据建模方向</div>
-    </div>
-    <div class="item">
-      <div class="item-title">西交利物浦大学 · 金融数学</div>
-      <div class="item-meta">2020 - 2024</div>
-      <div class="item-desc">本科金融数学专业</div>
-    </div>`
-  },
-  {
-    name: '小红书', icon: '📱', color: '#f43f5e', orbit: 150, size: 9, speed: 0.006,
-    subtitle: 'Xiaohongshu · Strategy Operations',
-    content: `<div class="item">
-      <div class="item-title">小红书 · 策略运营 — 社区回查数据岗</div>
-      <div class="item-meta">2025.10 - 2025.12 · 上海</div>
-      <div class="item-desc">• SQL 数据看板搭建与分析<br>• A/B 测试设计与效果评估<br>• 特征因子挖掘与策略优化</div>
-    </div>`
-  },
-  {
-    name: 'Ipsos', icon: '📊', color: '#3b82f6', orbit: 195, size: 8.5, speed: 0.005,
-    subtitle: 'Ipsos · Quantitative Research',
-    content: `<div class="item">
-      <div class="item-title">Ipsos 益普索 · 定量研究实习</div>
-      <div class="item-meta">2025.09 - 2025.10 · 上海</div>
-      <div class="item-desc">• SPSS 数据分析<br>• 品牌广告效果分析<br>• 亿滋（Mondelez）商业分析项目</div>
-    </div>`
-  },
-  {
-    name: 'Cryptoracle', icon: '₿', color: '#f59e0b', orbit: 235, size: 8, speed: 0.004,
-    subtitle: 'Cryptoracle · Data Analytics',
-    content: `<div class="item">
-      <div class="item-title">Cryptoracle · 数据分析实习</div>
-      <div class="item-meta">2025.06 - 2025.07 · 马来西亚</div>
-      <div class="item-desc">• SQL 数据查询与管理<br>• PCA 主成分分析<br>• 时间序列预测模型<br>• 聚类用户画像构建</div>
-    </div>`
-  },
-  {
-    name: '科大讯飞', icon: '🤖', color: '#10b981', orbit: 275, size: 9, speed: 0.0035,
-    subtitle: 'iFlytek · Knowledge Graph',
-    content: `<div class="item">
-      <div class="item-title">科大讯飞 · 知识图谱部研究实习</div>
-      <div class="item-meta">2023.07 - 2023.10 · 苏州</div>
-      <div class="item-desc">• NLP 文本分类模型研发<br>• 分类准确率达到 98%<br>• 知识图谱构建与维护</div>
-    </div>`
-  },
-  {
-    name: '德勤', icon: '🏢', color: '#a78bfa', orbit: 315, size: 8.5, speed: 0.003,
-    subtitle: 'Deloitte · Risk Advisory',
-    content: `<div class="item">
-      <div class="item-title">德勤 · 风险咨询实习</div>
-      <div class="item-meta">2022.05 - 2022.08 · 重庆</div>
-      <div class="item-desc">• 异常检测算法开发<br>• 风险预警系统优化<br>• 预警准确率达 93%</div>
-    </div>`
-  },
-  {
-    name: 'TCM-GPT', icon: '🌿', color: '#f472b6', orbit: 358, size: 8, speed: 0.0025,
-    subtitle: 'TCM-GPT · NLP Research',
-    content: `<div class="item">
-      <div class="item-title">上海中医药大学 × 百度 · TCM-GPT</div>
-      <div class="item-meta">2023.09 - 2024.06</div>
-      <div class="item-desc">• 百万字中医语料数据处理<br>• NLP 实体识别模型训练<br>• 中医药知识图谱构建</div>
-    </div>`
-  },
-  {
-    name: '技能', icon: '⚡', color: '#fbbf24', orbit: 420, size: 12, speed: 0.002,
-    isSaturn: true,
-    subtitle: 'Technical Skills',
-    skills: [
-      { name: 'Python', pct: 92 },
-      { name: 'SQL', pct: 90 },
-      { name: 'SPSS', pct: 88 },
-      { name: 'R', pct: 82 },
-      { name: 'ML', pct: 80 },
-      { name: 'NLP', pct: 78 },
-      { name: 'GIS', pct: 78 },
-      { name: '英语', pct: 95 }
-    ],
-    content: 'skills'
-  }
-];
+(function() {
+  'use strict';
 
-const centerData = {
-  name: '张丹逸',
-  icon: '☀️',
-  subtitle: 'Contact & Links',
-  content: 'center'
-};
+  // ── Data ──
+  const PLANETS = [
+    { name: '教育星系', icon: '🎓', color: '#c4b5fd', orbitR: 80, size: 7, speed: 0.006, startAngle: 0.5,
+      content: { period: '2020 – 2026', title: '教育背景', org: 'UCL · 西交利物浦',
+        bullets: ['UCL 环境数据建模 理学硕士 (2024–2026)', '西交利物浦大学 金融数学 理学学士 (2020–2024)', '雅思 8.0'] }},
+    { name: '小红书', icon: '📱', color: '#fb7185', orbitR: 130, size: 6, speed: 0.005, startAngle: 1.2,
+      content: { period: '2025.10 – 2025.12', title: '策略运营实习', org: '小红书 · 上海',
+        bullets: ['SQL 搭建数据看板，构建审核运营指标体系', 'A/B 测试验证审核策略效果', '特征因子挖掘，推动策略链路优化'],
+        tags: ['SQL', 'A/B测试', '数据看板'] }},
+    { name: 'Ipsos', icon: '📊', color: '#60a5fa', orbitR: 175, size: 5.5, speed: 0.004, startAngle: 2.5,
+      content: { period: '2025.09 – 2025.10', title: '定量研究实习生', org: 'Ipsos益普索 · 上海',
+        bullets: ['定量分析品牌广告投放效果', 'SPSS + A/B 测试归因分析', '参与《2025亿滋企业洞察商业分析》'],
+        tags: ['SPSS', '定量分析', '消费者洞察'] }},
+    { name: 'Cryptoracle', icon: '₿', color: '#fbbf24', orbitR: 215, size: 5.5, speed: 0.003, startAngle: 0.8,
+      content: { period: '2025.06 – 2025.07', title: '数据分析实习生', org: 'Cryptoracle · 马来西亚',
+        bullets: ['SQL 提取金融市场交易数据', 'PCA 降维 + 时间序列预测，识别异常交易', 'Python 聚类分析构建用户画像'],
+        tags: ['Python', 'SQL', 'PCA', '时间序列'] }},
+    { name: '科大讯飞', icon: '🤖', color: '#34d399', orbitR: 255, size: 6, speed: 0.0025, startAngle: 3.8,
+      content: { period: '2023.07 – 2023.10', title: '研究分析实习生', org: '科大讯飞 知识图谱部 · 苏州',
+        bullets: ['设计司法案件文本多层次标签体系', 'Python + NLP 实现案件自动分类', '机器识别准确率提升至 98%'],
+        tags: ['Python', 'NLP', '知识图谱', '文本分类'] }},
+    { name: '德勤', icon: '🏢', color: '#a78bfa', orbitR: 295, size: 5.5, speed: 0.002, startAngle: 1.8,
+      content: { period: '2022.05 – 2022.08', title: '风险咨询实习生', org: '德勤 Deloitte · 重庆',
+        bullets: ['月度业务数据核算，撰写风险评估报告', '异常检测算法监测项目数据', '风险预警准确率 93%'],
+        tags: ['异常检测', '风险量化', '统计分析'] }},
+    { name: 'TCM-GPT', icon: '🌿', color: '#f472b6', orbitR: 335, size: 5, speed: 0.0018, startAngle: 4.5,
+      content: { period: '2023.09 – 2024.06', title: '中医药大模型项目', org: '上海中医药大学 × 百度',
+        bullets: ['参与"文心一言"架构中医药语言模型构建', '百万字中医语料清洗与结构化转化', '症状/方剂/经络实体关系抽取'],
+        tags: ['Python', 'NLP', '大模型', '知识图谱'] }},
+    { name: '技能星座', icon: '⚡', color: '#fde68a', orbitR: 385, size: 8, speed: 0.0014, startAngle: 2.2, isSaturn: true,
+      content: { period: 'Skills', title: '技能星座', org: '数据科学家技能树',
+        skills: [
+          {name:'Python', pct:92}, {name:'SQL', pct:90}, {name:'R / Matlab', pct:82},
+          {name:'SPSS', pct:88}, {name:'GIS空间分析', pct:78}, {name:'机器学习', pct:80},
+          {name:'NLP文本分析', pct:78}, {name:'英语（雅思8.0）', pct:95}
+        ]}}
+  ];
 
-// ==================== SCENE SETUP ====================
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-camera.position.set(0, 460, 320);
-camera.lookAt(0, 0, 0);
+  const discoveredSet = new Set();
+  let panelOpen = false;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x0a0014);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
-document.body.appendChild(renderer.domElement);
+  // ── DOM refs ──
+  const canvas = document.getElementById('galaxy-canvas');
+  const labelsContainer = document.getElementById('labels-container');
+  const panel = document.getElementById('panel');
+  const panelContent = document.getElementById('panel-content');
+  const panelClose = document.getElementById('panel-close');
+  const discoveredEl = document.getElementById('discovered');
+  const hintEl = document.getElementById('hint');
+  const loadingEl = document.getElementById('loading');
+  const loadingFill = document.getElementById('loading-fill');
 
-// ==================== LIGHTING ====================
-const ambientLight = new THREE.AmbientLight(0x1a0a2e, 0.6);
-scene.add(ambientLight);
+  // ── Three.js Setup ──
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
 
-const centerLight = new THREE.PointLight(0xfce4a8, 2.5, 600, 1.5);
-centerLight.position.set(0, 20, 0);
-scene.add(centerLight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+  camera.position.set(0, 0, 800);
+  camera.lookAt(0, 0, 0);
 
-const fillLight = new THREE.PointLight(0x9333ea, 0.4, 500);
-fillLight.position.set(-100, 80, -100);
-scene.add(fillLight);
-
-// ==================== CENTER STAR ====================
-const starGeom = new THREE.SphereGeometry(26, 48, 48);
-const starMat = new THREE.MeshBasicMaterial({ color: 0xffeebb });
-const star = new THREE.Mesh(starGeom, starMat);
-star.position.set(0, 0, 0);
-star.userData = { isCenter: true, dataIdx: -1 };
-scene.add(star);
-
-// Star glow
-const glowGeom = new THREE.SphereGeometry(36, 32, 32);
-const glowMat = new THREE.MeshBasicMaterial({
-  color: 0xffdd88, transparent: true, opacity: 0.15
-});
-const glow = new THREE.Mesh(glowGeom, glowMat);
-scene.add(glow);
-
-// Star outer glow
-const glow2Geom = new THREE.SphereGeometry(50, 32, 32);
-const glow2Mat = new THREE.MeshBasicMaterial({
-  color: 0xcc88ff, transparent: true, opacity: 0.06
-});
-const glow2 = new THREE.Mesh(glow2Geom, glow2Mat);
-scene.add(glow2);
-
-// ==================== BACKGROUND STARS ====================
-const bgStarsCount = 2000;
-const bgStarsGeom = new THREE.BufferGeometry();
-const bgStarsPos = new Float32Array(bgStarsCount * 3);
-const bgStarsSizes = new Float32Array(bgStarsCount);
-for (let i = 0; i < bgStarsCount; i++) {
-  const r = 500 + Math.random() * 800;
-  const theta = Math.random() * Math.PI * 2;
-  const phi = Math.random() * Math.PI;
-  bgStarsPos[i*3] = r * Math.sin(phi) * Math.cos(theta);
-  bgStarsPos[i*3+1] = (Math.random() - 0.3) * 600;
-  bgStarsPos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
-  bgStarsSizes[i] = 0.5 + Math.random() * 1.5;
-}
-bgStarsGeom.setAttribute('position', new THREE.BufferAttribute(bgStarsPos, 3));
-bgStarsGeom.setAttribute('size', new THREE.BufferAttribute(bgStarsSizes, 1));
-const bgStarsMat = new THREE.PointsMaterial({
-  color: 0xddd8ff, size: 1.2, transparent: true, opacity: 0.7,
-  sizeAttenuation: true
-});
-const bgStars = new THREE.Points(bgStarsGeom, bgStarsMat);
-scene.add(bgStars);
-
-// ==================== ORBIT PARTICLES ====================
-function createOrbitParticles(radius, color, count) {
-  count = count || Math.floor(500 + (radius / 260) * 300);
-  const geom = new THREE.BufferGeometry();
-  const pos = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2;
-    const spread = (Math.random() - 0.5) * 4;
-    const r = radius + spread;
-    pos[i*3] = Math.cos(angle) * r;
-    pos[i*3+1] = (Math.random() - 0.5) * 1.5;
-    pos[i*3+2] = Math.sin(angle) * r;
-  }
-  geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const c = new THREE.Color(color);
-  const mat = new THREE.PointsMaterial({
-    color: c, size: 0.8, transparent: true, opacity: 0.3,
-    sizeAttenuation: true
-  });
-  return new THREE.Points(geom, mat);
-}
-
-planets.forEach(p => {
-  const orbitLine = createOrbitParticles(p.orbit, p.color);
-  scene.add(orbitLine);
-});
-
-// ==================== PLANETS ====================
-const planetMeshes = [];
-const planetAngles = [];
-
-planets.forEach((p, idx) => {
-  const geom = new THREE.SphereGeometry(p.size, 32, 32);
-  const mat = new THREE.MeshPhongMaterial({
-    color: new THREE.Color(p.color),
-    emissive: new THREE.Color(p.color).multiplyScalar(0.15),
-    shininess: 80,
-    specular: new THREE.Color(0xffffff).multiplyScalar(0.4),
-  });
-  const mesh = new THREE.Mesh(geom, mat);
-  const startAngle = Math.random() * Math.PI * 2;
-  mesh.position.set(
-    Math.cos(startAngle) * p.orbit,
-    0,
-    Math.sin(startAngle) * p.orbit
-  );
-  mesh.userData = { dataIdx: idx };
-  scene.add(mesh);
-  planetMeshes.push(mesh);
-  planetAngles.push(startAngle);
-
-  // Planet glow
-  const pgGeom = new THREE.SphereGeometry(p.size * 1.4, 16, 16);
-  const pgMat = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(p.color), transparent: true, opacity: 0.08
-  });
-  const pgMesh = new THREE.Mesh(pgGeom, pgMat);
-  mesh.add(pgMesh);
-
-  // Saturn ring
-  if (p.isSaturn) {
-    const ringGeom = new THREE.TorusGeometry(p.size * 1.8, 1.2, 2, 64);
-    const ringMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(p.color),
-      emissive: new THREE.Color(p.color).multiplyScalar(0.2),
-      transparent: true, opacity: 0.6,
-      shininess: 40,
-      side: THREE.DoubleSide
-    });
-    const ring = new THREE.Mesh(ringGeom, ringMat);
-    ring.rotation.x = Math.PI / 2.2;
-    mesh.add(ring);
-
-    // Second ring
-    const ring2Geom = new THREE.TorusGeometry(p.size * 2.2, 0.6, 2, 64);
-    const ring2Mat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(p.color),
-      transparent: true, opacity: 0.3,
-      side: THREE.DoubleSide
-    });
-    const ring2 = new THREE.Mesh(ring2Geom, ring2Mat);
-    ring2.rotation.x = Math.PI / 2.2;
-    mesh.add(ring2);
-  }
-});
-
-// ==================== RAYCASTER ====================
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let hoveredPlanet = null;
-
-const allClickable = [star, ...planetMeshes];
-
-renderer.domElement.addEventListener('mousemove', (e) => {
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(allClickable);
-  
-  const tooltip = document.getElementById('tooltip');
-  if (intersects.length > 0) {
-    const obj = intersects[0].object;
-    const dIdx = obj.userData.dataIdx;
-    renderer.domElement.style.cursor = 'pointer';
-    
-    if (obj.userData.isCenter) {
-      tooltip.textContent = '☀️ 张丹逸 · 点击查看联系方式';
+  // ── Loading simulation ──
+  let loadProgress = 0;
+  const loadInterval = setInterval(function() {
+    loadProgress += Math.random() * 15 + 5;
+    if (loadProgress >= 100) {
+      loadProgress = 100;
+      loadingFill.style.width = '100%';
+      clearInterval(loadInterval);
+      setTimeout(function() { loadingEl.classList.add('hidden'); }, 500);
     } else {
-      const p = planets[dIdx];
-      tooltip.textContent = p.icon + ' ' + p.name;
+      loadingFill.style.width = loadProgress + '%';
     }
-    tooltip.style.left = (e.clientX + 16) + 'px';
-    tooltip.style.top = (e.clientY - 10) + 'px';
-    tooltip.classList.add('visible');
-    hoveredPlanet = obj;
-  } else {
-    renderer.domElement.style.cursor = 'default';
-    tooltip.classList.remove('visible');
-    hoveredPlanet = null;
-  }
-});
+  }, 120);
 
-renderer.domElement.addEventListener('click', (e) => {
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(allClickable);
-  
-  if (intersects.length > 0) {
-    const obj = intersects[0].object;
-    const dIdx = obj.userData.dataIdx;
-    if (obj.userData.isCenter) {
-      openPanel(-1);
-    } else {
-      openPanel(dIdx);
+  // ── Galaxy Group ──
+  const galaxyGroup = new THREE.Group();
+  galaxyGroup.rotation.x = -Math.PI * 0.28;
+  galaxyGroup.rotation.z = Math.PI * 0.05;
+  scene.add(galaxyGroup);
+
+  // ── Lights ──
+  const ambientLight = new THREE.AmbientLight(0x333344, 0.5);
+  scene.add(ambientLight);
+
+  const centerLight = new THREE.PointLight(0xffffff, 3, 600);
+  centerLight.position.set(0, 0, 0);
+  galaxyGroup.add(centerLight);
+
+  const centerLight2 = new THREE.PointLight(0x8888ff, 1.5, 400);
+  centerLight2.position.set(0, 0, 0);
+  galaxyGroup.add(centerLight2);
+
+  // ── Star Core ──
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const coreGeo = new THREE.SphereGeometry(12, 32, 32);
+  const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+  coreMesh.userData = { isCore: true };
+  galaxyGroup.add(coreMesh);
+
+  // Glow layers
+  for (var g = 0; g < 3; g++) {
+    var glowSize = 18 + g * 10;
+    var glowMat = new THREE.MeshBasicMaterial({
+      color: g === 0 ? 0xccccff : (g === 1 ? 0x8888dd : 0x5555aa),
+      transparent: true,
+      opacity: 0.12 - g * 0.03,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    var glowMesh = new THREE.Mesh(new THREE.SphereGeometry(glowSize, 32, 32), glowMat);
+    galaxyGroup.add(glowMesh);
+  }
+
+  // ── Spiral Arms Particles ──
+  function createSpiralArm(armOffset, count, colorInner, colorOuter) {
+    var positions = new Float32Array(count * 3);
+    var colors = new Float32Array(count * 3);
+    var colI = new THREE.Color(colorInner);
+    var colO = new THREE.Color(colorOuter);
+
+    for (var i = 0; i < count; i++) {
+      var t = i / count;
+      var angle = t * Math.PI * 4.5;
+      var r = 18 + t * 420;
+      var spread = (Math.random() - 0.5) * (10 + t * 30);
+      var x = Math.cos(angle + armOffset) * (r + spread);
+      var z = Math.sin(angle + armOffset) * (r + spread);
+      var y = (Math.random() - 0.5) * (6 + t * 14);
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+
+      var c = new THREE.Color().lerpColors(colI, colO, t);
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
     }
+
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    var mat = new THREE.PointsMaterial({
+      size: 1.6,
+      sizeAttenuation: true,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    return new THREE.Points(geo, mat);
   }
-});
 
-// ==================== PANEL ====================
-const panel = document.getElementById('panel');
-const panelIcon = document.getElementById('panel-icon');
-const panelTitle = document.getElementById('panel-title');
-const panelSubtitle = document.getElementById('panel-subtitle');
-const panelBody = document.getElementById('panel-body');
-let currentPanelIdx = null;
+  var arm1 = createSpiralArm(0, 5000, 0xffffff, 0x6666cc);
+  var arm2 = createSpiralArm(Math.PI, 5000, 0xffffff, 0x7766bb);
+  galaxyGroup.add(arm1);
+  galaxyGroup.add(arm2);
 
-function openPanel(idx) {
-  currentPanelIdx = idx;
-  document.querySelectorAll('.nav-dot').forEach((d, i) => {
-    d.classList.toggle('active', i === idx);
+  // ── Background Stars ──
+  (function() {
+    var bgCount = 3000;
+    var bgPos = new Float32Array(bgCount * 3);
+    var bgCol = new Float32Array(bgCount * 3);
+    for (var i = 0; i < bgCount; i++) {
+      var theta = Math.random() * Math.PI * 2;
+      var phi = Math.acos(2 * Math.random() - 1);
+      var radius = 1500 + Math.random() * 3000;
+      bgPos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      bgPos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      bgPos[i * 3 + 2] = radius * Math.cos(phi);
+
+      var brightness = 0.4 + Math.random() * 0.6;
+      var tint = Math.random();
+      if (tint < 0.3) {
+        bgCol[i * 3] = brightness;
+        bgCol[i * 3 + 1] = brightness * 0.9;
+        bgCol[i * 3 + 2] = brightness * 0.7;
+      } else if (tint < 0.5) {
+        bgCol[i * 3] = brightness * 0.7;
+        bgCol[i * 3 + 1] = brightness * 0.8;
+        bgCol[i * 3 + 2] = brightness;
+      } else {
+        bgCol[i * 3] = brightness;
+        bgCol[i * 3 + 1] = brightness;
+        bgCol[i * 3 + 2] = brightness;
+      }
+    }
+    var bgGeo = new THREE.BufferGeometry();
+    bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPos, 3));
+    bgGeo.setAttribute('color', new THREE.BufferAttribute(bgCol, 3));
+    var bgMat = new THREE.PointsMaterial({
+      size: 2, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.8,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    scene.add(new THREE.Points(bgGeo, bgMat));
+  })();
+
+  // ── Orbit Lines ──
+  function createOrbit(radius) {
+    var segments = 128;
+    var pts = [];
+    for (var i = 0; i <= segments; i++) {
+      var a = (i / segments) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius));
+    }
+    var geo = new THREE.BufferGeometry().setFromPoints(pts);
+    var mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.08, depthWrite: false });
+    return new THREE.LineLoop(geo, mat);
+  }
+
+  PLANETS.forEach(function(p) {
+    galaxyGroup.add(createOrbit(p.orbitR));
   });
 
-  if (idx === -1) {
-    panelIcon.textContent = '☀️';
-    panelTitle.textContent = '张丹逸';
-    panelTitle.style.color = '#ffdd88';
-    panelSubtitle.textContent = 'Contact & Links';
-    panelBody.innerHTML = `
-      <div class="contact-row"><span class="contact-label">邮箱</span><span>13359485898@163.com</span></div>
-      <div class="contact-row"><span class="contact-label">手机</span><span>133-5948-5898</span></div>
-      <div class="contact-row"><span class="contact-label">微信</span><span>zdy020115</span></div>
-      <div class="contact-row"><span class="contact-label">GitHub</span><span>DanyiZhang2002</span></div>
-    `;
-  } else {
-    const p = planets[idx];
-    panelIcon.textContent = p.icon;
-    panelTitle.textContent = p.name;
-    panelTitle.style.color = p.color;
-    panelSubtitle.textContent = p.subtitle;
+  // ── Planets ──
+  var planetMeshes = [];
+  var planetData = [];
 
-    if (p.content === 'skills') {
-      panelBody.innerHTML = p.skills.map(s => `
-        <div class="skill-bar">
-          <span class="skill-name">${s.name}</span>
-          <div class="skill-track">
-            <div class="skill-fill" style="width:0%;background:${p.color};" data-target="${s.pct}"></div>
-          </div>
-          <span class="skill-pct">${s.pct}%</span>
-        </div>
-      `).join('');
-      // Animate skill bars
-      setTimeout(() => {
-        panelBody.querySelectorAll('.skill-fill').forEach(el => {
-          el.style.width = el.dataset.target + '%';
+  PLANETS.forEach(function(pData, idx) {
+    // Planet sphere
+    var geo = new THREE.SphereGeometry(pData.size, 32, 32);
+    var col = new THREE.Color(pData.color);
+    var mat = new THREE.MeshPhongMaterial({
+      color: col,
+      emissive: col.clone().multiplyScalar(0.2),
+      shininess: 80,
+      specular: new THREE.Color(0x444444)
+    });
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.userData = { planetIndex: idx };
+
+    var pGroup = new THREE.Group();
+    pGroup.add(mesh);
+
+    // Saturn ring
+    if (pData.isSaturn) {
+      var ringGeo = new THREE.TorusGeometry(pData.size * 1.6, 1.2, 2, 64);
+      var ringMat = new THREE.MeshBasicMaterial({
+        color: 0xfde68a,
+        transparent: true,
+        opacity: 0.45,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      var ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI * 0.5;
+      pGroup.add(ringMesh);
+
+      // Inner glow for saturn
+      var satGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(pData.size * 1.3, 16, 16),
+        new THREE.MeshBasicMaterial({
+          color: 0xfde68a,
+          transparent: true,
+          opacity: 0.1,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      pGroup.add(satGlow);
+    }
+
+    // Small glow around each planet
+    var pGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(pData.size * 1.5, 16, 16),
+      new THREE.MeshBasicMaterial({
+        color: col,
+        transparent: true,
+        opacity: 0.08,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    pGroup.add(pGlow);
+
+    // Initial position
+    var angle = pData.startAngle;
+    pGroup.position.set(
+      Math.cos(angle) * pData.orbitR,
+      0,
+      Math.sin(angle) * pData.orbitR
+    );
+
+    galaxyGroup.add(pGroup);
+
+    planetMeshes.push(mesh);
+    planetData.push({
+      data: pData,
+      group: pGroup,
+      mesh: mesh,
+      angle: pData.startAngle,
+      currentAngle: pData.startAngle
+    });
+  });
+
+  // ── HTML Labels ──
+  var labelEls = [];
+  PLANETS.forEach(function(p) {
+    var el = document.createElement('div');
+    el.className = 'planet-label';
+    el.innerHTML = '<span class="label-icon">' + p.icon + '</span>' + p.name;
+    labelsContainer.appendChild(el);
+    labelEls.push(el);
+  });
+
+  // ── Raycaster ──
+  var raycaster = new THREE.Raycaster();
+  raycaster.params.Points = { threshold: 5 };
+  var mouse = new THREE.Vector2();
+
+  // Collect all clickable objects
+  var clickables = [coreMesh];
+  planetMeshes.forEach(function(m) { clickables.push(m); });
+
+  canvas.addEventListener('click', function(e) {
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(clickables);
+    if (intersects.length > 0) {
+      var obj = intersects[0].object;
+      if (obj.userData.isCore) {
+        openPanel(null, true);
+      } else if (obj.userData.planetIndex !== undefined) {
+        var idx = obj.userData.planetIndex;
+        discoveredSet.add(idx);
+        discoveredEl.textContent = discoveredSet.size;
+        openPanel(idx, false);
+      }
+    }
+  });
+
+  // Close panel
+  panelClose.addEventListener('click', function() {
+    panel.classList.remove('open');
+    panelOpen = false;
+  });
+
+  // Nav buttons
+  document.querySelectorAll('.nav-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (btn.dataset.tab === 'contact') {
+        openPanel(null, true);
+      } else {
+        panel.classList.remove('open');
+        panelOpen = false;
+      }
+    });
+  });
+
+  // ── Panel Content ──
+  function openPanel(planetIdx, isContact) {
+    var html = '';
+    if (isContact) {
+      html = '<div style="margin-bottom:16px;"><span class="panel-icon">✦</span></div>' +
+        '<div class="panel-period">Contact</div>' +
+        '<div class="panel-title">Danyi Zhang</div>' +
+        '<div class="panel-org">数据科学 · 环境建模 · NLP</div>' +
+        '<div class="panel-divider"></div>' +
+        '<div class="contact-info">' +
+          '<div class="contact-row"><span class="contact-label">姓名</span><span class="contact-value">Danyi Zhang (张丹一)</span></div>' +
+          '<div class="contact-row"><span class="contact-label">学历</span><span class="contact-value">UCL 硕士在读</span></div>' +
+          '<div class="contact-row"><span class="contact-label">院校</span><span class="contact-value">UCL · 西交利物浦大学</span></div>' +
+          '<div class="contact-row"><span class="contact-label">方向</span><span class="contact-value">环境数据建模 / NLP / 数据分析</span></div>' +
+          '<div class="contact-row"><span class="contact-label">语言</span><span class="contact-value">中文（母语）· 英语（雅思 8.0）</span></div>' +
+        '</div>';
+    } else if (planetIdx !== null) {
+      var pd = PLANETS[planetIdx];
+      var ct = pd.content;
+      html = '<span class="panel-icon">' + pd.icon + '</span>' +
+        '<div class="panel-period">' + ct.period + '</div>' +
+        '<div class="panel-title">' + ct.title + '</div>' +
+        '<div class="panel-org">' + ct.org + '</div>' +
+        '<div class="panel-divider"></div>';
+
+      if (ct.bullets) {
+        html += '<ul class="panel-bullets">';
+        ct.bullets.forEach(function(b) { html += '<li>' + b + '</li>'; });
+        html += '</ul>';
+      }
+
+      if (ct.skills) {
+        html += '<div class="skill-bars">';
+        ct.skills.forEach(function(s) {
+          html += '<div class="skill-bar-row">' +
+            '<div class="skill-bar-label"><span class="skill-bar-name">' + s.name + '</span><span class="skill-bar-pct">' + s.pct + '%</span></div>' +
+            '<div class="skill-bar-track"><div class="skill-bar-fill" style="width:0%;background:linear-gradient(90deg,' + pd.color + ',' + pd.color + '88);" data-pct="' + s.pct + '"></div></div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+
+      if (ct.tags) {
+        html += '<div class="panel-tags">';
+        ct.tags.forEach(function(t) { html += '<span class="panel-tag">' + t + '</span>'; });
+        html += '</div>';
+      }
+    }
+
+    panelContent.innerHTML = html;
+    panel.classList.add('open');
+    panelOpen = true;
+
+    // Animate skill bars
+    if (planetIdx !== null && PLANETS[planetIdx].content.skills) {
+      setTimeout(function() {
+        document.querySelectorAll('.skill-bar-fill').forEach(function(bar) {
+          bar.style.width = bar.dataset.pct + '%';
         });
       }, 100);
-    } else {
-      panelBody.innerHTML = p.content;
     }
+
+    // Hide hint after first click
+    if (hintEl) { hintEl.style.display = 'none'; }
   }
 
-  panel.classList.add('open');
-  document.getElementById('tooltip').classList.remove('visible');
-}
+  // ── Mouse drag for camera orbit ──
+  var isDragging = false;
+  var prevMouse = { x: 0, y: 0 };
+  var cameraAngle = { x: 0, y: 0 };
+  var targetCameraAngle = { x: 0, y: 0 };
+  var cameraDistance = 800;
+  var targetDistance = 800;
 
-function closePanel() {
-  panel.classList.remove('open');
-  currentPanelIdx = null;
-  document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
-}
-
-document.getElementById('panel-close').addEventListener('click', closePanel);
-
-// ==================== LEFT NAV ====================
-const leftNav = document.getElementById('left-nav');
-planets.forEach((p, idx) => {
-  const dot = document.createElement('div');
-  dot.className = 'nav-dot';
-  dot.style.color = p.color;
-  dot.innerHTML = `<span class="dot" style="background:${p.color}30;border-color:${p.color}88"></span><span class="label">${p.icon} ${p.name}</span>`;
-  dot.addEventListener('click', () => openPanel(idx));
-  leftNav.appendChild(dot);
-});
-
-// Bottom nav
-document.querySelectorAll('#bottom-nav a').forEach(a => {
-  a.addEventListener('click', () => openPanel(parseInt(a.dataset.idx)));
-});
-
-// ==================== ANIMATION ====================
-let time = 0;
-function animate() {
-  requestAnimationFrame(animate);
-  time += 1;
-
-  // Rotate planets
-  planetMeshes.forEach((mesh, idx) => {
-    planetAngles[idx] += planets[idx].speed;
-    const r = planets[idx].orbit;
-    mesh.position.x = Math.cos(planetAngles[idx]) * r;
-    mesh.position.z = Math.sin(planetAngles[idx]) * r;
-    mesh.rotation.y += 0.01;
+  canvas.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    prevMouse.x = e.clientX;
+    prevMouse.y = e.clientY;
   });
 
-  // Star pulse
-  const pulse = 1 + Math.sin(time * 0.02) * 0.05;
-  star.scale.set(pulse, pulse, pulse);
-  glow.scale.set(pulse * 1.1, pulse * 1.1, pulse * 1.1);
-  glow2.scale.set(pulse * 0.95, pulse * 0.95, pulse * 0.95);
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var dx = e.clientX - prevMouse.x;
+    var dy = e.clientY - prevMouse.y;
+    targetCameraAngle.x += dx * 0.003;
+    targetCameraAngle.y += dy * 0.003;
+    targetCameraAngle.y = Math.max(-0.5, Math.min(0.5, targetCameraAngle.y));
+    prevMouse.x = e.clientX;
+    prevMouse.y = e.clientY;
+  });
 
-  // Star glow rotation
-  glow.rotation.y += 0.002;
-  glow2.rotation.y -= 0.001;
+  window.addEventListener('mouseup', function() { isDragging = false; });
 
-  // Background stars twinkle
-  bgStars.rotation.y += 0.0001;
+  // Scroll zoom
+  canvas.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    targetDistance += e.deltaY * 0.5;
+    targetDistance = Math.max(300, Math.min(1500, targetDistance));
+  }, { passive: false });
 
-  renderer.render(scene, camera);
-}
-animate();
+  // ── Animation Loop ──
+  var clock = new THREE.Clock();
 
-// ==================== RESIZE ====================
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  function animate() {
+    requestAnimationFrame(animate);
+    var delta = clock.getDelta();
+
+    // Galaxy slow rotation
+    galaxyGroup.rotation.y += 0.0005;
+
+    // Camera smooth orbit
+    cameraAngle.x += (targetCameraAngle.x - cameraAngle.x) * 0.05;
+    cameraAngle.y += (targetCameraAngle.y - cameraAngle.y) * 0.05;
+    cameraDistance += (targetDistance - cameraDistance) * 0.08;
+
+    camera.position.x = Math.sin(cameraAngle.x) * cameraDistance * 0.5;
+    camera.position.y = cameraAngle.y * 200;
+    camera.position.z = cameraDistance;
+    camera.lookAt(0, 0, 0);
+
+    // Update planet positions
+    planetData.forEach(function(p) {
+      p.currentAngle += p.data.speed;
+      p.group.position.x = Math.cos(p.currentAngle) * p.data.orbitR;
+      p.group.position.z = Math.sin(p.currentAngle) * p.data.orbitR;
+      // Planet self rotation
+      p.mesh.rotation.y += 0.01;
+    });
+
+    // Update labels
+    var tempVec = new THREE.Vector3();
+    planetData.forEach(function(p, i) {
+      p.group.getWorldPosition(tempVec);
+      tempVec.project(camera);
+      if (tempVec.z > 1) {
+        labelEls[i].style.opacity = '0';
+        return;
+      }
+      var x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+      var y = (-tempVec.y * 0.5 + 0.5) * window.innerHeight;
+      labelEls[i].style.left = x + 'px';
+      labelEls[i].style.top = (y - p.data.size * 3 - 8) + 'px';
+
+      // Fade labels near edges
+      var edgeFade = 1;
+      if (x < 60 || x > window.innerWidth - 60 || y < 40 || y > window.innerHeight - 40) {
+        edgeFade = 0;
+      }
+      // Fade if behind core (z > 0.95 means very far)
+      var depthFade = tempVec.z < 0.98 ? 1 : Math.max(0, (1 - tempVec.z) * 50);
+      labelEls[i].style.opacity = (edgeFade * depthFade * 0.85).toFixed(2);
+    });
+
+    // Core pulse
+    var pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.05;
+    coreMesh.scale.set(pulse, pulse, pulse);
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // ── Resize ──
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})();
 </script>
 </body>
 </html>
